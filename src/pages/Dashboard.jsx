@@ -7,7 +7,9 @@ export default function Dashboard() {
       <Sidebar />
       <div className="lg:ml-64 flex flex-col min-h-screen">
         <Header />
-        <main className="flex-1"></main>
+        <main className="flex-1">
+
+        </main>
       </div>
     </div>
   );
