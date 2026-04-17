@@ -1,6 +1,4 @@
-import supabase from "@/lib/supabase";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const DIA_COLORS = {
     Segunda: { bg: "#1A2E1A", border: "#2A4A2A", text: "#5DBE5D" },
@@ -81,7 +79,7 @@ function TagDia({ dia }) {
     );
 }
 
-function TreinoRow({ treino }) {
+function TreinoRow({ treino, onModalEdicao, removerTreino }) {
     return (
         <div className="flex items-center justify-between py-3.5 px-6 gap-3 transition-colors duration-150">
             {/* Lado esquerdo */}
@@ -117,20 +115,16 @@ function TreinoRow({ treino }) {
                     <button
                         className="w-7 h-7 flex items-center justify-center bg-transparent border border-[#2A2A2A] rounded-md cursor-pointer text-zinc-500 transition-all duration-150 p-0 hover:text-[#E8881A] hover:border-[#E8881A]/20 hover:bg-[#E8881A]/10"
                         title="Editar"
+                        onClick={() => onModalEdicao(treino)}
                     >
                         <IconEdit />
                     </button>
                     <button
                         className="w-7 h-7 flex items-center justify-center bg-transparent border border-[#2A2A2A] rounded-md cursor-pointer text-zinc-500 transition-all duration-150 p-0 hover:text-[#E8441A] hover:border-[#E8441A]/20 hover:bg-[#E8441A]/10"
                         title="Excluir"
+                        onClick={() => removerTreino(treino)}
                     >
                         <IconTrash />
-                    </button>
-                    <button
-                        className="w-7 h-7 flex items-center justify-center bg-transparent border border-[#2A2A2A] rounded-md cursor-pointer text-zinc-500 transition-all duration-150 p-0 ml-0.5 hover:text-[#E0E0E0] hover:border-[#3A3A3A]"
-                        title="Ver exercícios"
-                    >
-                        <IconChevron />
                     </button>
                 </div>
             </div>
@@ -138,36 +132,10 @@ function TreinoRow({ treino }) {
     );
 }
 
-export default function TabelaTreino({ onModal }) {
-    const [treinos, setTreinos] = useState([])
-    const [erro, setErro] = useState("")
-    const navigate = useNavigate()
+export default function TabelaTreino({ onModal, onModalEdicao, treinos, erro, removerTreino }) {
+    const [busca, setBusca] = useState("")
 
-    useEffect(() => {
-        async function buscarDados() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser()
-
-                if (user) {
-                    const { data, error } = await supabase.from("treinos").select()
-                    if (data) {
-                        setTreinos(data)
-                    } else {
-                        throw new Error("Nenhum treino encontrado.")
-                    }
-                } else {
-                    alert("Necessário fazer login")
-                    navigate("/login")
-                    throw new Error("Necessário fazer login")
-                }
-
-            } catch (error) {
-                setErro(error.message)
-            }
-        }
-
-        buscarDados()
-    }, [])
+    let treinoFiltrados = treinos.filter(treino => treino.nome.toLowerCase().includes(busca.toLowerCase()))
 
     return (
         <div className="min-h-[100vh] flex justify-center items-start pt-10 px-4 pb-15 font-sans">
@@ -201,19 +169,8 @@ export default function TabelaTreino({ onModal }) {
                             className="bg-transparent border-none outline-none text-[#E0E0E0] text-[13px] py-2 w-full font-sans"
                             type="text"
                             placeholder="Buscar treino..."
+                            onChange={(e) => setBusca(e.target.value)}
                         />
-                    </div>
-                    <div className="flex gap-1.5">
-                        {["Todos", "Seg–Sex", "Fim de semana"].map((f, i) => (
-                            <button
-                                key={f}
-                                className={i === 0
-                                    ? "py-[7px] px-[13px] text-xs font-medium rounded-lg cursor-pointer transition-all duration-150 font-sans text-[#E8881A] bg-[#E8881A]/10 border border-[#E8881A]/30"
-                                    : "py-[7px] px-[13px] text-xs font-medium text-zinc-500 bg-transparent border border-[#2A2A2A] rounded-lg cursor-pointer transition-all duration-150 font-sans hover:text-[#E0E0E0] hover:border-[#444]"}
-                            >
-                                {f}
-                            </button>
-                        ))}
                     </div>
                 </div>
 
@@ -227,9 +184,9 @@ export default function TabelaTreino({ onModal }) {
 
                 {/* Linhas */}
                 {!erro && <div className="py-1">
-                    {treinos.map((treino, i) => (
+                    {treinoFiltrados.map((treino, i) => (
                         <div key={treino.id}>
-                            <TreinoRow treino={treino} />
+                            <TreinoRow treino={treino} onModalEdicao={onModalEdicao} removerTreino={removerTreino} />
                             {i < treinos.length - 1 && <div className="h-px bg-[#1A1A1A] mx-6" />}
                         </div>
                     ))}

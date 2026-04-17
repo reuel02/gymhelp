@@ -15,6 +15,10 @@ export function Cadastro() {
                 password: senha
             })
 
+            if (error) {
+                throw error
+            }
+
             const id = data.user.id
 
             const insert = await supabase.from('usuarios').insert({ id, nome })
@@ -45,7 +49,7 @@ export function Cadastro() {
                 </div>
 
                 {/* Formulário */}
-                <div className="flex flex-col gap-4">
+                <form className="flex flex-col gap-4">
                     {/* Input Nome */}
                     <div>
                         <label className="block text-xs font-semibold text-zinc-500 tracking-wide uppercase mb-2">
@@ -68,6 +72,7 @@ export function Cadastro() {
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
                             type="email"
                             placeholder="seu@email.com"
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
 
@@ -80,6 +85,7 @@ export function Cadastro() {
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
                             type="password"
                             placeholder="••••••••"
+                            onChange={(e) => setSenha(e.target.value)}
                         />
                         <p className="mt-2 text-[11px] text-zinc-500">A senha deve ter no mínimo 6 caracteres.</p>
                     </div>
@@ -90,7 +96,7 @@ export function Cadastro() {
                     >
                         Criar minha conta
                     </button>
-                </div>
+                </form>
 
                 {/* Rodapé Toggle */}
                 <div className="mt-8 text-center text-sm text-zinc-500">

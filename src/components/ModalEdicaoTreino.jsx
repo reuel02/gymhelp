@@ -1,14 +1,11 @@
+import React from 'react';
+import { MdClose } from "react-icons/md";
+
 const DIAS_SEMANA = [
     "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo",
 ];
 
-import { MdClose } from "react-icons/md";
-
-const exercicioVazio = { nome: "", series: "", repeticoes: "", carga: "" };
-
-export default function ModalTreino({ onClose, setNome, setDia, setExercicios, setObservacoes, exercicios, adicionarExercicioVazio, dia, removerExercicio, nome, salvarTreino, salvando }) {
-    const formularioInvalido = nome === "" || dia === "" || exercicios.length === 0 || exercicios.some(ex => ex.nome === "" || ex.series === "" || ex.repeticoes === "" || ex.carga === "");
-
+export function ModalEdicaoTreino({ onClose, setDia, setNome, setExercicios, setObservacoes, adicionarExercicioVazio, dia, removerExercicio, nome, atualizarTreino, salvando, exercicios, observacoes }) {
     return (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/70 backdrop-blur-sm p-4 font-sans">
             <div className="w-full max-w-[720px] max-h-[90vh] flex flex-col bg-[#161616] border border-[#222] rounded-2xl shadow-2xl overflow-hidden">
@@ -17,11 +14,13 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                 <div className="flex items-center justify-between p-5 px-6 shrink-0">
                     <div className="flex items-center gap-2.5">
                         <span className="w-[34px] h-[34px] bg-[#E8881A]/10 border border-[#E8881A]/20 rounded-lg flex items-center justify-center">
+                            {/* Ícone de Edição (Lápis) */}
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8881A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M6 4v16M18 4v16M2 8h4M18 8h4M2 16h4M18 16h4" />
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </span>
-                        <span className="text-lg font-semibold text-[#F0F0F0] tracking-tight">Novo Treino</span>
+                        <span className="text-lg font-semibold text-[#F0F0F0] tracking-tight">Editar Treino</span>
                     </div>
                     <button
                         onClick={() => onClose(false)}
@@ -63,6 +62,7 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                         <input
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
                             type="text"
+                            value={nome}
                             placeholder="Ex: Treino A — Peito e Tríceps"
                             onChange={(e) => setNome(e.target.value)}
                         />
@@ -94,12 +94,13 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                             <span className="w-7" />
                         </div>
 
-                        {/* Linhas de exercício (estáticas, mock) */}
+                        {/* Linha de exercício */}
                         {exercicios.map((exercicio, i) => (
                             <div key={i} className="flex items-center gap-2 mb-2">
                                 <input
                                     className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-[3] focus:border-[#E8881A]"
                                     type="text"
+                                    value={exercicio.nome}
                                     placeholder={i === 0 ? "Supino reto com barra" : "Nome do exercício"}
                                     onChange={(e) => {
                                         const novaLista = [...exercicios]
@@ -112,6 +113,7 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                                 <input
                                     className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-1 focus:border-[#E8881A]"
                                     type="number"
+                                    value={exercicio.series}
                                     placeholder="4"
                                     min="1"
                                     onChange={(e) => {
@@ -125,6 +127,7 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                                 <input
                                     className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-1 focus:border-[#E8881A]"
                                     type="number"
+                                    value={exercicio.repeticoes}
                                     placeholder="12"
                                     min="1"
                                     onChange={(e) => {
@@ -139,6 +142,7 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                                     <input
                                         className="bg-transparent border-none outline-none text-[#E0E0E0] text-[13px] w-full font-sans"
                                         type="number"
+                                        value={exercicio.carga}
                                         placeholder="80"
                                         min="0"
                                         step="0.5"
@@ -162,15 +166,6 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                                 </button>
                             </div>
                         ))}
-
-                        {/* Estado vazio hint */}
-                        <div className="flex items-center gap-1.5 mt-2.5 text-xs text-zinc-500 leading-relaxed">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M12 8v4M12 16h.01" />
-                            </svg>
-                            <span>Adicione quantos exercícios quiser. Clique em "+ Adicionar" para incluir mais.</span>
-                        </div>
                     </div>
 
                     <div className="h-px bg-[#1F1F1F] mx-6" />
@@ -183,7 +178,7 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                         <textarea
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans resize-y box-border leading-relaxed focus:border-[#E8881A]"
                             rows={3}
-                            placeholder="Ex: Foco em tensão muscular, tempo de execução de 3 segundos na descida..."
+                            value={observacoes}
                             onChange={(e) => setObservacoes(e.target.value)}
                         />
                     </div>
@@ -199,18 +194,13 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                     </button>
                     <button
                         className={`flex items-center gap-1.5 py-[9px] px-5 text-[13px] font-semibold text-[#111] bg-[#E8881A] border-none rounded-lg transition-colors font-sans
-                            ${formularioInvalido
-                                ? "opacity-50 cursor-not-allowed"
-                                : "cursor-pointer hover:bg-[#F09530]"
-                            }
-
                             ${salvando
                                 ? "opacity-50 cursor-not-allowed"
                                 : "cursor-pointer hover:bg-[#F09530]"
                             }
                             `}
-                        disabled={formularioInvalido || salvando}
-                        onClick={salvarTreino}
+                        disabled={salvando}
+                        onClick={atualizarTreino}
                     >
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />

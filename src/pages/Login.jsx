@@ -14,6 +14,10 @@ export default function Login() {
                 password: senha
             })
 
+            if (error) {
+                throw error
+            }
+
             alert("Logado com sucesso!")
             navigate("/")
         } catch (error) {
@@ -23,7 +27,7 @@ export default function Login() {
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-[#111] p-4 font-sans">
-            <div className="w-full max-w-[400px] flex flex-col bg-[#161616] border border-[#222] rounded-2xl shadow-2xl p-6 sm:p-8">
+            <form className="w-full max-w-[400px] flex flex-col bg-[#161616] border border-[#222] rounded-2xl shadow-2xl p-6 sm:p-8">
 
                 {/* Header do Login */}
                 <div className="flex flex-col items-center mb-8">
@@ -82,7 +86,7 @@ export default function Login() {
                         Cadastre-se
                     </Link>
                 </div>
-            </div>
+            </form>
         </div>
     )
 }
