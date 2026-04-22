@@ -81,7 +81,7 @@ function TagDia({ dia }) {
 
 function TreinoRow({ treino, onModalEdicao, removerTreino }) {
     return (
-        <div className="flex items-center justify-between py-3.5 px-6 gap-3 transition-colors duration-150">
+        <div className="flex items-center justify-between py-3 sm:py-3.5 px-4 sm:px-6 gap-3 transition-colors duration-150">
             {/* Lado esquerdo */}
             <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="w-8 h-8 bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-500 shrink-0">
@@ -102,7 +102,7 @@ function TreinoRow({ treino, onModalEdicao, removerTreino }) {
                                 <circle cx="12" cy="12" r="10" />
                                 <polyline points="12 6 12 12 16 14" />
                             </svg>
-                            {treino.exercicios.reduce((a, e) => a + e.series, 0)} séries totais
+                            {treino.exercicios.reduce((a, e) => a + Number(e.series), 0)} séries totais
                         </span>
                     </div>
                 </div>
@@ -138,11 +138,11 @@ export default function TabelaTreino({ onModal, onModalEdicao, treinos, erro, re
     let treinoFiltrados = treinos.filter(treino => treino.nome.toLowerCase().includes(busca.toLowerCase()))
 
     return (
-        <div className="min-h-[100vh] flex justify-center items-start pt-10 px-4 pb-15 font-sans">
+        <div className="flex justify-center items-start pt-6 sm:pt-10 px-3 sm:px-4 pb-6 font-sans">
             <div className="w-full max-w-[760px] bg-[#161616] border border-[#222] rounded-2xl overflow-hidden">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 px-6">
+                <div className="flex items-center justify-between p-4 sm:p-5 px-4 sm:px-6 gap-2">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-[#E8881A]/10 border border-[#E8881A]/20 rounded-lg flex items-center justify-center text-[#E8881A] shrink-0">
                             <IconBarbell />
@@ -154,7 +154,7 @@ export default function TabelaTreino({ onModal, onModalEdicao, treinos, erro, re
                     </div>
                     <button
                         onClick={() => onModal(true)}
-                        className="flex items-center gap-1.5 py-2 px-4 text-[13px] font-semibold text-[#111] bg-[#E8881A] border-none rounded-lg cursor-pointer transition-colors duration-150 font-sans whitespace-nowrap hover:bg-[#F09530]"
+                        className="flex items-center gap-1.5 py-2 px-3 sm:px-4 text-[13px] font-semibold text-[#111] bg-[#E8881A] border-none rounded-lg cursor-pointer transition-colors duration-150 font-sans whitespace-nowrap hover:bg-[#F09530]"
                     >
                         <IconPlus />
                         Novo treino
@@ -162,7 +162,7 @@ export default function TabelaTreino({ onModal, onModalEdicao, treinos, erro, re
                 </div>
 
                 {/* Filtros */}
-                <div className="flex items-center gap-2.5 px-6 pb-4 flex-wrap">
+                <div className="flex items-center gap-2.5 px-4 sm:px-6 pb-4 flex-wrap">
                     <div className="flex items-center gap-2 flex-1 min-w-[180px] bg-[#181818] border border-[#2A2A2A] rounded-lg px-3 transition-colors duration-150 focus-within:border-[#E8881A]">
                         <span className="flex items-center shrink-0"><IconSearch /></span>
                         <input
@@ -177,9 +177,9 @@ export default function TabelaTreino({ onModal, onModalEdicao, treinos, erro, re
                 <div className="h-px bg-[#1F1F1F]" />
 
                 {/* Cabeçalho da tabela */}
-                <div className="flex items-center py-2.5 px-6 border-b border-[#1A1A1A]">
+                <div className="flex items-center py-2.5 px-4 sm:px-6 border-b border-[#1A1A1A]">
                     <span className="text-[11px] font-semibold text-[#3A3A3A] tracking-wide uppercase">Treino</span>
-                    <span className="text-[11px] font-semibold text-[#3A3A3A] tracking-wide uppercase ml-auto pr-[110px]">Dia</span>
+                    <span className="text-[11px] font-semibold text-[#3A3A3A] tracking-wide uppercase ml-auto pr-[80px] sm:pr-[110px]">Dia</span>
                 </div>
 
                 {/* Linhas */}

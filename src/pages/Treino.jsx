@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabase";
 import { ModalEdicaoTreino } from "@/components/ModalEdicaoTreino";
 import { ModalDeletarTreino } from "@/components/ModalDeletarTreino";
+import CardTreino from "@/components/CardTreino";
 
 export default function Treino() {
     const [abrirModal, setAbrirModal] = useState(false)
@@ -181,8 +182,14 @@ export default function Treino() {
             <Sidebar />
             <div className="lg:ml-64 flex flex-col min-h-screen">
                 <Header />
-                <main className="flex-1">
+                <main className="flex flex-col pb-24 lg:pb-0">
                     <TabelaTreino onModal={setAbrirModal} onModalEdicao={abrirModalParaEdicao} treinos={treinos} erro={erro} removerTreino={prepararDelecao} />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 sm:px-6 pb-10 mt-7">
+                        {treinos.map((treino) => (
+                            <CardTreino key={treino.id} treino={treino} onModalEdicao={setAbrirModalEdicao} removerTreino={prepararDelecao} />
+                        ))}
+                    </div>
                 </main>
             </div>
             {abrirModal && (
@@ -202,11 +209,11 @@ export default function Treino() {
             )}
 
             {abrirModalDeletar && (
-                <ModalDeletarTreino 
-                    onClose={setAbrirModalDeletar} 
-                    onConfirm={deletarTreinoConfirmado} 
-                    treino={treinoParaDeletar} 
-                    salvando={salvando} 
+                <ModalDeletarTreino
+                    onClose={setAbrirModalDeletar}
+                    onConfirm={deletarTreinoConfirmado}
+                    treino={treinoParaDeletar}
+                    salvando={salvando}
                 />
             )}
         </div>
