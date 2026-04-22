@@ -15,7 +15,7 @@ export default function Sidebar() {
         <nav className="text-texto text-md font-medium flex flex-col gap-6 px-6 mt-3">
           <a href="/" className='flex items-center gap-3 hover:text-titulo hover:font-semibold'><FiHome />Dashboard</a>
           <a href="/treino" className='flex items-center gap-3 hover:text-titulo hover:font-semibold'><LiaDumbbellSolid />Treino</a>
-          <a href="#" className='flex items-center gap-3 hover:text-titulo hover:font-semibold'><MdOutlineFoodBank />Dieta</a>
+          <a href="/dieta" className='flex items-center gap-3 hover:text-titulo hover:font-semibold'><MdOutlineFoodBank />Dieta</a>
         </nav>
       </aside>
 
@@ -29,7 +29,7 @@ export default function Sidebar() {
           <LiaDumbbellSolid className="size-5" />
           <span className="text-[10px] font-medium text-destaque">Treino</span>
         </a>
-        <a href="#" className="flex flex-col items-center gap-0.5 text-zinc-500 hover:text-destaque transition-colors px-4 py-1.5">
+        <a href="/dieta" className="flex flex-col items-center gap-0.5 text-zinc-500 hover:text-destaque transition-colors px-4 py-1.5">
           <MdOutlineFoodBank className="size-5" />
           <span className="text-[10px] font-medium">Dieta</span>
         </a>

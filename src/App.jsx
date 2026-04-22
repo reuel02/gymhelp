@@ -3,6 +3,7 @@ import Dashboard from './pages/Dashboard'
 import Treino from './pages/Treino'
 import Login from './pages/Login'
 import { Cadastro } from './pages/Cadastro'
+import Dieta from './pages/Dieta'
 
 function App() {
 
@@ -10,9 +11,10 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Dashboard />} />
-        <Route path='/treino' element={<Treino />} />
         <Route path='/login' element={<Login />} />
         <Route path='/cadastro' element={<Cadastro />} />
+        <Route path='/treino' element={<Treino />} />
+        <Route path='/dieta' element={<Dieta />} />
       </Routes>
     </BrowserRouter>
   )

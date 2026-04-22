@@ -1,13 +1,13 @@
-import ModalTreino from "@/components/ModalTreino";
+import ModalTreino from "@/components/Treino/ModalTreino";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import TabelaTreino from "@/components/TabelaTreino";
+import TabelaTreino from "@/components/Treino/TabelaTreino";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabase";
-import { ModalEdicaoTreino } from "@/components/ModalEdicaoTreino";
-import { ModalDeletarTreino } from "@/components/ModalDeletarTreino";
-import CardTreino from "@/components/CardTreino";
+import { ModalEdicaoTreino } from "@/components/Treino/ModalEdicaoTreino";
+import { ModalDeletarTreino } from "@/components/Treino/ModalDeletarTreino";
+import CardTreino from "@/components/Treino/CardTreino";
 
 export default function Treino() {
     const [abrirModal, setAbrirModal] = useState(false)
