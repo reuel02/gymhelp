@@ -72,7 +72,9 @@ export default function Login() {
                     </div>
 
                     {/* Botão de Ação */}
-                    <button className="w-full mt-2 py-3 px-5 text-[14px] font-semibold text-[#111] bg-[#E8881A] border-none rounded-lg cursor-pointer transition-colors duration-150 font-sans hover:bg-[#F09530]"
+                    <button
+                        type="button"
+                        className="w-full mt-2 py-3 px-5 text-[14px] font-semibold text-[#111] bg-[#E8881A] border-none rounded-lg cursor-pointer transition-colors duration-150 font-sans hover:bg-[#F09530]"
                         onClick={fazerLogin}
                     >
                         Entrar na conta
