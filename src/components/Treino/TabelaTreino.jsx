@@ -81,7 +81,7 @@ function TagDia({ dia }) {
 
 function TreinoRow({ treino, onModalEdicao, removerTreino }) {
     return (
-        <div className="flex items-center justify-between py-3 sm:py-3.5 px-4 sm:px-6 gap-3 transition-colors duration-150">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 sm:py-3.5 px-4 sm:px-6 gap-2 sm:gap-3 transition-colors duration-150">
             {/* Lado esquerdo */}
             <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="w-8 h-8 bg-[#1E1E1E] border border-[#2A2A2A] rounded-lg flex items-center justify-center text-zinc-500 shrink-0">
@@ -109,7 +109,7 @@ function TreinoRow({ treino, onModalEdicao, removerTreino }) {
             </div>
 
             {/* Lado direito */}
-            <div className="flex items-center gap-2.5 shrink-0">
+            <div className="flex items-center gap-2.5 shrink-0 pl-11 sm:pl-0">
                 <TagDia dia={treino.dia} />
                 <div className="flex items-center gap-1">
                     <button

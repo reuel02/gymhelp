@@ -1,6 +1,6 @@
 import { LiaDumbbellSolid } from "react-icons/lia";
 import { MdOutlineFoodBank } from "react-icons/md";
-import { FiHome } from "react-icons/fi";
+import { FiHome, FiUser } from "react-icons/fi";
 import logoSvg from '../assets/logo.svg'
 
 export default function Sidebar() {
@@ -16,6 +16,7 @@ export default function Sidebar() {
           <a href="/" className='flex items-center gap-3 hover:text-titulo hover:font-semibold'><FiHome />Dashboard</a>
           <a href="/treino" className='flex items-center gap-3 hover:text-titulo hover:font-semibold'><LiaDumbbellSolid />Treino</a>
           <a href="/dieta" className='flex items-center gap-3 hover:text-titulo hover:font-semibold'><MdOutlineFoodBank />Dieta</a>
+          <a href="/perfil" className='flex items-center gap-3 hover:text-titulo hover:font-semibold'><FiUser />Perfil</a>
         </nav>
       </aside>
 
@@ -32,6 +33,10 @@ export default function Sidebar() {
         <a href="/dieta" className="flex flex-col items-center gap-0.5 text-zinc-500 hover:text-destaque transition-colors px-4 py-1.5">
           <MdOutlineFoodBank className="size-5" />
           <span className="text-[10px] font-medium">Dieta</span>
+        </a>
+        <a href="/perfil" className="flex flex-col items-center gap-0.5 text-zinc-500 hover:text-destaque transition-colors px-4 py-1.5">
+          <FiUser className="size-5" />
+          <span className="text-[10px] font-medium">Perfil</span>
         </a>
       </nav>
     </>

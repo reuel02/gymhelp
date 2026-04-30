@@ -1,4 +1,5 @@
 import FormTMB from "@/components/Dieta/FormTMB";
+import PainelMacros from "@/components/Dieta/PainelMacros";
 import PainelDieta from "@/components/Dieta/PainelDieta";
 import ModalRefeicao from "@/components/Dieta/ModalRefeicao";
 import Header from "@/components/Header";
@@ -14,6 +15,8 @@ export default function Dieta() {
     const [idade, setIdade] = useState('')
     const [genero, setGenero] = useState('')
     const [atividade, setAtividade] = useState('')
+    const [objetivo, setObjetivo] = useState('')
+    const [metaCalorias, setMetaCalorias] = useState(0)
 
     // Dieta states
     const [diaSelecionado, setDiaSelecionado] = useState('Segunda')
@@ -26,11 +29,37 @@ export default function Dieta() {
     const [observacoes, setObservacoes] = useState('')
     const [salvando, setSalvando] = useState(false)
 
+    // Macros states
+    const [macros, setMacros] = useState({ calorias: 0, proteinas: 0, carboidratos: 0, gorduras: 0 })
+
     const navigate = useNavigate()
 
     useEffect(() => {
+        carregarPerfil()
         buscarRefeicoes()
+        buscarMacros()
     }, [])
+
+    async function carregarPerfil() {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+
+            const { data } = await supabase
+                .from("usuarios")
+                .select()
+                .eq("id", user.id)
+                .single()
+
+            if (data) {
+                if (data.peso) setPeso(String(data.peso))
+                if (data.altura) setAltura(String(data.altura))
+                if (data.objetivo) setObjetivo(data.objetivo)
+            }
+        } catch (error) {
+            // Perfil ainda não existe
+        }
+    }
 
     function calcularTMB(peso, altura, idade, genero, atividade) {
         const p = Number(peso)
@@ -51,6 +80,16 @@ export default function Dieta() {
         return { tmb, get }
     }
 
+    function handleResultadoTMB(resultado) {
+        const ajuste = {
+            emagrecer: -500,
+            manter: 0,
+            ganhar: 500,
+        }
+        const meta = Math.round(resultado.get + (ajuste[objetivo] || 0))
+        setMetaCalorias(meta)
+    }
+
     async function buscarRefeicoes() {
         try {
             const { data: { user } } = await supabase.auth.getUser()
@@ -66,6 +105,38 @@ export default function Dieta() {
             }
         } catch (error) {
             alert("Erro ao buscar refeições: " + error.message)
+        }
+    }
+
+    async function buscarMacros() {
+        const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+        const hoje = diasSemana[new Date().getDay()];
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (user) {
+                const { data, error } = await supabase.from("refeicoes").select()
+
+                if (data) {
+                    const refeicoesDoDia = data.filter(r => r.dia === hoje);
+
+                    const totais = refeicoesDoDia.reduce((acc, refeicao) => {
+                        refeicao.alimentos.forEach((al) => {
+                            acc.calorias += Number(al.calorias || 0);
+                            acc.proteinas += Number(al.proteina || 0);
+                            acc.carboidratos += Number(al.carboidrato || 0);
+                            acc.gorduras += Number(al.gordura || 0);
+                        });
+                        return acc;
+                    }, { calorias: 0, proteinas: 0, carboidratos: 0, gorduras: 0 });
+
+                    setMacros(totais)
+                }
+            }
+
+        } catch (error) {
+            alert("Erro ao buscar macros: " + error.message)
         }
     }
 
@@ -151,7 +222,14 @@ export default function Dieta() {
                         idade={idade} setIdade={setIdade}
                         genero={genero} setGenero={setGenero}
                         atividade={atividade} setAtividade={setAtividade}
+                        objetivo={objetivo} setObjetivo={setObjetivo}
                         calcularTMB={calcularTMB}
+                        onResultado={handleResultadoTMB}
+                    />
+
+                    <PainelMacros
+                        macrosTotais={macros}
+                        metaCalorias={metaCalorias}
                     />
 
                     <PainelDieta

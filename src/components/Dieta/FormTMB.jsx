@@ -17,13 +17,13 @@ function IconScale() {
     );
 }
 
-export default function FormTMB({ peso, setPeso, altura, setAltura, idade, setIdade, genero, setGenero, atividade, setAtividade, calcularTMB }) {
+export default function FormTMB({ peso, setPeso, altura, setAltura, idade, setIdade, genero, setGenero, atividade, setAtividade, objetivo, setObjetivo, calcularTMB, onResultado }) {
     const [tmb, setTmb] = useState({})
     const [onCalcular, setOnCalcular] = useState(false)
 
     return (
         <div className="flex justify-center items-start pt-6 sm:pt-10 px-3 sm:px-4 pb-6 font-sans">
-            <div className="w-full max-w-[540px] flex flex-col bg-[#161616] border border-[#222] rounded-2xl overflow-hidden">
+            <div className="w-full max-w-[700px] flex flex-col bg-[#161616] border border-[#222] rounded-2xl overflow-hidden">
 
                 {/* Barra top */}
                 <div className="h-1 w-full bg-gradient-to-r from-[#E8881A] to-[#F09530]" />
@@ -164,6 +164,48 @@ export default function FormTMB({ peso, setPeso, altura, setAltura, idade, setId
                             <option value="1.9">Extremamente ativo (2x por dia)</option>
                         </select>
                     </div>
+
+                    {/* Objetivo */}
+                    <div>
+                        <label className="block text-[11px] font-semibold text-zinc-500 tracking-wide uppercase mb-2">
+                            Objetivo
+                        </label>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                className={`flex-1 py-2.5 px-3 text-sm font-medium rounded-lg border transition-all duration-150 cursor-pointer
+                                    ${objetivo === 'emagrecer'
+                                        ? 'bg-[#E8881A]/10 border-[#E8881A]/40 text-[#E8881A] shadow-[0_0_12px_rgba(232,136,26,0.15)]'
+                                        : 'bg-[#181818] border-[#2A2A2A] text-zinc-400 hover:border-[#E8881A]/40 hover:text-[#E8881A]'
+                                    }`}
+                                onClick={() => setObjetivo('emagrecer')}
+                            >
+                                Emagrecer
+                            </button>
+                            <button
+                                type="button"
+                                className={`flex-1 py-2.5 px-3 text-sm font-medium rounded-lg border transition-all duration-150 cursor-pointer
+                                    ${objetivo === 'manter'
+                                        ? 'bg-[#E8881A]/10 border-[#E8881A]/40 text-[#E8881A] shadow-[0_0_12px_rgba(232,136,26,0.15)]'
+                                        : 'bg-[#181818] border-[#2A2A2A] text-zinc-400 hover:border-[#E8881A]/40 hover:text-[#E8881A]'
+                                    }`}
+                                onClick={() => setObjetivo('manter')}
+                            >
+                                Manter
+                            </button>
+                            <button
+                                type="button"
+                                className={`flex-1 py-2.5 px-3 text-sm font-medium rounded-lg border transition-all duration-150 cursor-pointer
+                                    ${objetivo === 'ganhar'
+                                        ? 'bg-[#E8881A]/10 border-[#E8881A]/40 text-[#E8881A] shadow-[0_0_12px_rgba(232,136,26,0.15)]'
+                                        : 'bg-[#181818] border-[#2A2A2A] text-zinc-400 hover:border-[#E8881A]/40 hover:text-[#E8881A]'
+                                    }`}
+                                onClick={() => setObjetivo('ganhar')}
+                            >
+                                Ganhar massa
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="h-px bg-[#1F1F1F]" />
@@ -177,6 +219,7 @@ export default function FormTMB({ peso, setPeso, altura, setAltura, idade, setId
                             const resultado = calcularTMB(peso, altura, idade, genero, atividade)
                             setTmb(resultado)
                             setOnCalcular(true)
+                            if (onResultado) onResultado(resultado)
                         }}
                     >
                         <IconFlame />

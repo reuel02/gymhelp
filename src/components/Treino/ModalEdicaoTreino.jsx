@@ -85,8 +85,8 @@ export function ModalEdicaoTreino({ onClose, setDia, setNome, setExercicios, set
                             </button>
                         </div>
 
-                        {/* Cabeçalho da tabela */}
-                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#1F1F1F]">
+                        {/* Cabeçalho da tabela - só no desktop */}
+                        <div className="hidden sm:flex items-center gap-2 mb-2 pb-2 border-b border-[#1F1F1F]">
                             <span className="text-[11px] text-[#444] font-semibold tracking-wide uppercase flex-[3]">Exercício</span>
                             <span className="text-[11px] text-[#444] font-semibold tracking-wide uppercase flex-1">Séries</span>
                             <span className="text-[11px] text-[#444] font-semibold tracking-wide uppercase flex-1">Reps</span>
@@ -94,76 +94,57 @@ export function ModalEdicaoTreino({ onClose, setDia, setNome, setExercicios, set
                             <span className="w-7" />
                         </div>
 
-                        {/* Linha de exercício */}
                         {exercicios.map((exercicio, i) => (
-                            <div key={i} className="flex items-center gap-2 mb-2">
-                                <input
-                                    className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-[3] focus:border-[#E8881A]"
-                                    type="text"
-                                    value={exercicio.nome}
-                                    placeholder={i === 0 ? "Supino reto com barra" : "Nome do exercício"}
-                                    onChange={(e) => {
-                                        const novaLista = [...exercicios]
-
-                                        novaLista[i].nome = e.target.value
-
-                                        setExercicios(novaLista)
-                                    }}
-                                />
-                                <input
-                                    className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-1 focus:border-[#E8881A]"
-                                    type="number"
-                                    value={exercicio.series}
-                                    placeholder="4"
-                                    min="1"
-                                    onChange={(e) => {
-                                        const novaLista = [...exercicios]
-
-                                        novaLista[i].series = e.target.value
-
-                                        setExercicios(novaLista)
-                                    }}
-                                />
-                                <input
-                                    className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-1 focus:border-[#E8881A]"
-                                    type="number"
-                                    value={exercicio.repeticoes}
-                                    placeholder="12"
-                                    min="1"
-                                    onChange={(e) => {
-                                        const novaLista = [...exercicios]
-
-                                        novaLista[i].repeticoes = e.target.value
-
-                                        setExercicios(novaLista)
-                                    }}
-                                />
-                                <div className="flex-[1.4] flex items-center gap-1 px-2 border border-[#2A2A2A] rounded-lg bg-[#181818] focus-within:border-[#E8881A] transition-colors duration-150 py-2">
-                                    <input
-                                        className="bg-transparent border-none outline-none text-[#E0E0E0] text-[13px] w-full font-sans"
-                                        type="number"
-                                        value={exercicio.carga}
-                                        placeholder="80"
-                                        min="0"
-                                        step="0.5"
-                                        onChange={(e) => {
-                                            const novaLista = [...exercicios]
-
-                                            novaLista[i].carga = e.target.value
-
-                                            setExercicios(novaLista)
-                                        }}
-                                    />
-                                    <span className="text-zinc-500 text-[11px] whitespace-nowrap">kg</span>
+                            <div key={i} className="mb-3 bg-[#1A1A1A] border border-[#252525] rounded-xl p-3 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0 sm:mb-2">
+                                {/* Desktop */}
+                                <div className="hidden sm:flex items-center gap-2">
+                                    <input className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-[3] focus:border-[#E8881A]" type="text" value={exercicio.nome}
+                                        placeholder={i === 0 ? "Supino reto com barra" : "Nome do exercício"}
+                                        onChange={(e) => { const n = [...exercicios]; n[i].nome = e.target.value; setExercicios(n); }} />
+                                    <input className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-1 focus:border-[#E8881A]" type="number" value={exercicio.series} placeholder="4" min="1"
+                                        onChange={(e) => { const n = [...exercicios]; n[i].series = e.target.value; setExercicios(n); }} />
+                                    <input className="bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none transition-colors duration-150 font-sans min-w-0 flex-1 focus:border-[#E8881A]" type="number" value={exercicio.repeticoes} placeholder="12" min="1"
+                                        onChange={(e) => { const n = [...exercicios]; n[i].repeticoes = e.target.value; setExercicios(n); }} />
+                                    <div className="flex-[1.4] flex items-center gap-1 px-2 border border-[#2A2A2A] rounded-lg bg-[#181818] focus-within:border-[#E8881A] transition-colors duration-150 py-2">
+                                        <input className="bg-transparent border-none outline-none text-[#E0E0E0] text-[13px] w-full font-sans" type="number" value={exercicio.carga} placeholder="80" min="0" step="0.5"
+                                            onChange={(e) => { const n = [...exercicios]; n[i].carga = e.target.value; setExercicios(n); }} />
+                                        <span className="text-zinc-500 text-[11px] whitespace-nowrap">kg</span>
+                                    </div>
+                                    <button className="w-7 h-7 flex items-center justify-center bg-transparent border border-transparent rounded-md cursor-pointer text-[#444] transition-all duration-150 shrink-0 p-0 hover:text-[#E8441A] hover:border-[#E8441A]/20 hover:bg-[#E8441A]/10" onClick={() => removerExercicio(i)}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                    </button>
                                 </div>
-                                <button
-                                    className="w-7 h-7 flex items-center justify-center bg-transparent border border-transparent rounded-md cursor-pointer text-[#444] transition-all duration-150 shrink-0 p-0 hover:text-[#E8441A] hover:border-[#E8441A]/20 hover:bg-[#E8441A]/10"
-                                    onClick={() => removerExercicio(i)}
-                                >
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                                        <path d="M18 6L6 18M6 6l12 12" />
-                                    </svg>
-                                </button>
+                                {/* Mobile */}
+                                <div className="flex flex-col gap-2 sm:hidden">
+                                    <div className="flex items-center gap-2">
+                                        <input className="flex-1 bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none font-sans min-w-0 focus:border-[#E8881A]" type="text" value={exercicio.nome}
+                                            placeholder={i === 0 ? "Supino reto com barra" : "Nome do exercício"}
+                                            onChange={(e) => { const n = [...exercicios]; n[i].nome = e.target.value; setExercicios(n); }} />
+                                        <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-[#2A2A2A] rounded-lg cursor-pointer text-[#555] shrink-0 p-0 active:text-red-500 active:border-red-500/20 active:bg-red-500/10" onClick={() => removerExercicio(i)}>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div>
+                                            <span className="block text-[10px] text-zinc-600 font-semibold uppercase mb-1">Séries</span>
+                                            <input className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none font-sans focus:border-[#E8881A]" type="number" value={exercicio.series} placeholder="4" min="1"
+                                                onChange={(e) => { const n = [...exercicios]; n[i].series = e.target.value; setExercicios(n); }} />
+                                        </div>
+                                        <div>
+                                            <span className="block text-[10px] text-zinc-600 font-semibold uppercase mb-1">Reps</span>
+                                            <input className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2 px-2.5 text-[13px] text-[#E0E0E0] outline-none font-sans focus:border-[#E8881A]" type="number" value={exercicio.repeticoes} placeholder="12" min="1"
+                                                onChange={(e) => { const n = [...exercicios]; n[i].repeticoes = e.target.value; setExercicios(n); }} />
+                                        </div>
+                                        <div>
+                                            <span className="block text-[10px] text-zinc-600 font-semibold uppercase mb-1">Carga</span>
+                                            <div className="flex items-center gap-1 px-2 border border-[#2A2A2A] rounded-lg bg-[#181818] focus-within:border-[#E8881A] py-2">
+                                                <input className="bg-transparent border-none outline-none text-[#E0E0E0] text-[13px] w-full font-sans" type="number" value={exercicio.carga} placeholder="80" min="0" step="0.5"
+                                                    onChange={(e) => { const n = [...exercicios]; n[i].carga = e.target.value; setExercicios(n); }} />
+                                                <span className="text-zinc-500 text-[11px]">kg</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>
