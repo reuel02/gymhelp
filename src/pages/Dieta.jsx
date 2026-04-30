@@ -55,6 +55,7 @@ export default function Dieta() {
                 if (data.peso) setPeso(String(data.peso))
                 if (data.altura) setAltura(String(data.altura))
                 if (data.objetivo) setObjetivo(data.objetivo)
+                if (data.meta_calorica) setMetaCalorias(data.meta_calorica)
             }
         } catch (error) {
             // Perfil ainda não existe
@@ -80,7 +81,7 @@ export default function Dieta() {
         return { tmb, get }
     }
 
-    function handleResultadoTMB(resultado) {
+    async function handleResultadoTMB(resultado) {
         const ajuste = {
             emagrecer: -500,
             manter: 0,
@@ -88,6 +89,19 @@ export default function Dieta() {
         }
         const meta = Math.round(resultado.get + (ajuste[objetivo] || 0))
         setMetaCalorias(meta)
+
+        // Persistir no banco
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                await supabase
+                    .from("usuarios")
+                    .update({ meta_calorica: meta })
+                    .eq("id", user.id)
+            }
+        } catch (error) {
+            console.error("Erro ao salvar meta calórica:", error)
+        }
     }
 
     async function buscarRefeicoes() {
