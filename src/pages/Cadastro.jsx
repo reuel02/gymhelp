@@ -8,20 +8,28 @@ export function Cadastro() {
     const [nome, setNome] = useState("")
     const navigate = useNavigate()
 
-    async function fazerCadastro() {
+    async function fazerCadastro(e) {
+        e.preventDefault()
+        
+        if (!email || !senha || !nome) {
+            alert("Preencha todos os campos!")
+            return
+        }
+
         try {
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password: senha
             })
 
-            if (error) {
-                throw error
+            if (error) throw error
+
+            const id = data.user?.id
+
+            if (id) {
+                const { error: insertError } = await supabase.from('usuarios').insert({ id, nome })
+                if (insertError) throw insertError
             }
-
-            const id = data.user.id
-
-            const insert = await supabase.from('usuarios').insert({ id, nome })
 
             alert("Conta criada com sucesso! Faça login agora.")
             navigate("/login")
@@ -49,7 +57,7 @@ export function Cadastro() {
                 </div>
 
                 {/* Formulário */}
-                <form className="flex flex-col gap-4">
+                <form className="flex flex-col gap-4" onSubmit={fazerCadastro}>
                     {/* Input Nome */}
                     <div>
                         <label className="block text-xs font-semibold text-zinc-500 tracking-wide uppercase mb-2">
@@ -59,6 +67,7 @@ export function Cadastro() {
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
                             type="text"
                             placeholder="João Silva"
+                            required
                             onChange={(e) => setNome(e.target.value)}
                         />
                     </div>
@@ -72,6 +81,7 @@ export function Cadastro() {
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
                             type="email"
                             placeholder="seu@email.com"
+                            required
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
@@ -85,15 +95,15 @@ export function Cadastro() {
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
                             type="password"
                             placeholder="••••••••"
+                            required
+                            minLength={6}
                             onChange={(e) => setSenha(e.target.value)}
                         />
                         <p className="mt-2 text-[11px] text-zinc-500">A senha deve ter no mínimo 6 caracteres.</p>
                     </div>
 
                     {/* Botão de Ação */}
-                    <button className="w-full mt-2 py-3 px-5 text-[14px] font-semibold text-[#111] bg-[#E8881A] border-none rounded-lg cursor-pointer transition-colors duration-150 font-sans hover:bg-[#F09530]"
-                        onClick={fazerCadastro}
-                    >
+                    <button type="submit" className="w-full mt-2 py-3 px-5 text-[14px] font-semibold text-[#111] bg-[#E8881A] border-none rounded-lg cursor-pointer transition-colors duration-150 font-sans hover:bg-[#F09530]">
                         Criar minha conta
                     </button>
                 </form>

@@ -7,16 +7,21 @@ export default function Login() {
     const [senha, setSenha] = useState("")
     const navigate = useNavigate()
 
-    async function fazerLogin() {
+    async function fazerLogin(e) {
+        e.preventDefault()
+        
+        if (!email || !senha) {
+            alert("Preencha todos os campos!")
+            return
+        }
+
         try {
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password: senha
             })
 
-            if (error) {
-                throw error
-            }
+            if (error) throw error
 
             alert("Logado com sucesso!")
             navigate("/")
@@ -27,7 +32,7 @@ export default function Login() {
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-[#111] p-4 font-sans">
-            <form className="w-full max-w-[400px] flex flex-col bg-[#161616] border border-[#222] rounded-2xl shadow-2xl p-6 sm:p-8">
+            <form className="w-full max-w-[400px] flex flex-col bg-[#161616] border border-[#222] rounded-2xl shadow-2xl p-6 sm:p-8" onSubmit={fazerLogin}>
 
                 {/* Header do Login */}
                 <div className="flex flex-col items-center mb-8">
@@ -52,6 +57,7 @@ export default function Login() {
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
                             type="email"
                             placeholder="seu@email.com"
+                            required
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
@@ -67,15 +73,15 @@ export default function Login() {
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
                             type="password"
                             placeholder="••••••••"
+                            required
                             onChange={(e) => setSenha(e.target.value)}
                         />
                     </div>
 
                     {/* Botão de Ação */}
                     <button
-                        type="button"
+                        type="submit"
                         className="w-full mt-2 py-3 px-5 text-[14px] font-semibold text-[#111] bg-[#E8881A] border-none rounded-lg cursor-pointer transition-colors duration-150 font-sans hover:bg-[#F09530]"
-                        onClick={fazerLogin}
                     >
                         Entrar na conta
                     </button>
