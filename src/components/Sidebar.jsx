@@ -1,8 +1,9 @@
 import { LiaDumbbellSolid } from "react-icons/lia";
 import { MdOutlineFoodBank } from "react-icons/md";
-import { FiHome, FiUser } from "react-icons/fi";
-import { useLocation } from "react-router-dom";
+import { FiHome, FiUser, FiLogOut } from "react-icons/fi";
+import { useLocation, useNavigate } from "react-router-dom";
 import logoSvg from '../assets/logo.svg'
+import supabase from '../lib/supabase'
 
 const LINKS = [
   { href: "/", label: "Dashboard", icon: FiHome },
@@ -13,10 +14,16 @@ const LINKS = [
 
 export default function Sidebar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   function isActive(href) {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate("/login");
   }
 
   return (
@@ -42,6 +49,17 @@ export default function Sidebar() {
             </a>
           ))}
         </nav>
+
+        {/* Botão Sair — desktop */}
+        <div className="mt-auto px-6 pb-6">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full text-sm font-medium text-zinc-500 hover:text-red-400 transition-colors cursor-pointer"
+          >
+            <FiLogOut className="size-4" />
+            Sair da conta
+          </button>
+        </div>
       </aside>
 
       {/* Bottom nav mobile */}
@@ -58,6 +76,13 @@ export default function Sidebar() {
             <span className="text-[10px] font-medium">{label}</span>
           </a>
         ))}
+        <button
+          onClick={handleLogout}
+          className="flex flex-col items-center gap-0.5 transition-colors px-4 py-1.5 text-zinc-500 hover:text-red-400 cursor-pointer"
+        >
+          <FiLogOut className="size-5" />
+          <span className="text-[10px] font-medium">Sair</span>
+        </button>
       </nav>
     </>
   );
