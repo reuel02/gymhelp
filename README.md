@@ -2,8 +2,6 @@
   <img src="src/assets/logo.svg" alt="GYMHelp Logo" width="180" />
 </p>
 
-<h1 align="center">GYMHelp</h1>
-
 <p align="center">
   <strong>Sua plataforma pessoal de treinos, dieta e acompanhamento fitness</strong>
 </p>
@@ -99,11 +97,12 @@ O projeto foi construído com foco em **mobile-first**, oferecendo uma experiên
 
 ## 🖼️ Screenshots
 
-> *Adicione screenshots da aplicação aqui para ilustrar as telas principais.*
-
-| Dashboard | Treinos | Dieta |
-|-----------|---------|-------|
-| ![Dashboard](#) | ![Treinos](#) | ![Dieta](#) |
+### Dashboard
+![Dashboard](public/dashboard.png)
+### Treinos 
+![Treinos](public/treino.png)
+### Dieta 
+![Dieta](public/dieta.png) 
 
 ---
 
