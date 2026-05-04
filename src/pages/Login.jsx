@@ -68,6 +68,9 @@ export default function Login() {
                             <label className="block text-xs font-semibold text-zinc-500 tracking-wide uppercase">
                                 Senha
                             </label>
+                            <Link to="/esqueci-senha" className="text-[11px] font-medium text-zinc-500 hover:text-[#E8881A] transition-colors">
+                                Esqueci minha senha
+                            </Link>
                         </div>
                         <input
                             className="w-full bg-[#181818] border border-[#2A2A2A] rounded-lg py-2.5 px-3.5 text-sm text-[#E0E0E0] outline-none transition-colors duration-150 font-sans box-border focus:border-[#E8881A] focus:bg-[#1E1E1E]"
