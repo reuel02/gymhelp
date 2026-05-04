@@ -92,24 +92,6 @@ export default function CardTreino({ treino, onModalEdicao, removerTreino }) {
                         <TagDia dia={treino.dia} />
                     </div>
                 </div>
-
-                {/* Ações */}
-                <div className="flex items-center gap-1 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-150">
-                    <button
-                        className="w-7 h-7 flex items-center justify-center bg-transparent border border-[#2A2A2A] rounded-md cursor-pointer text-zinc-500 transition-all duration-150 p-0 hover:text-[#E8881A] hover:border-[#E8881A]/20 hover:bg-[#E8881A]/10"
-                        title="Editar"
-                        onClick={() => onModalEdicao(treino)}
-                    >
-                        <IconEdit />
-                    </button>
-                    <button
-                        className="w-7 h-7 flex items-center justify-center bg-transparent border border-[#2A2A2A] rounded-md cursor-pointer text-zinc-500 transition-all duration-150 p-0 hover:text-red-500 hover:border-red-500/20 hover:bg-red-500/10"
-                        title="Excluir"
-                        onClick={() => removerTreino(treino)}
-                    >
-                        <IconTrash />
-                    </button>
-                </div>
             </div>
 
             {/* Divisor */}
