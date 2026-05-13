@@ -2,21 +2,51 @@ import { useState, useEffect, useRef } from "react";
 import { MdClose } from "react-icons/md";
 import supabase from "@/lib/supabase";
 
-export default function ModalTreinoAtivo({ treino, onClose, onTreinoConcluido }) {
-    const [fase, setFase] = useState("preparacao"); // preparacao | serie | descanso | concluido
-    const [exercicioIdx, setExercicioIdx] = useState(0);
-    const [serieIdx, setSerieIdx] = useState(0);
-    const [cargaAtual, setCargaAtual] = useState("");
-    const [tempoRestante, setTempoRestante] = useState(0);
-    const [registros, setRegistros] = useState([]);
-    const [tempoInicio, setTempoInicio] = useState(null);
+export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTreinoConcluido, onSessaoAtualizada }) {
+    const [fase, setFase] = useState(sessaoAtiva?.fase || "preparacao"); // preparacao | serie | descanso | concluido
+    const [exercicioIdx, setExercicioIdx] = useState(sessaoAtiva?.exercicioIdx || 0);
+    const [serieIdx, setSerieIdx] = useState(sessaoAtiva?.serieIdx || 0);
+    const [cargaAtual, setCargaAtual] = useState(sessaoAtiva?.cargaAtual || "");
+    const [tempoRestante, setTempoRestante] = useState(sessaoAtiva?.tempoRestante || 0);
+    const [registros, setRegistros] = useState(sessaoAtiva?.registros || []);
+    const [tempoInicio, setTempoInicio] = useState(sessaoAtiva?.tempoInicio ? new Date(sessaoAtiva.tempoInicio) : null);
     const [salvando, setSalvando] = useState(false);
+    const [descansoPersonalizado, setDescansoPersonalizado] = useState(sessaoAtiva?.descansoPersonalizado || Number(treino?.descanso_segundos) || 60);
     const timerRef = useRef(null);
 
     const exercicios = treino?.exercicios || [];
     const exercicioAtual = exercicios[exercicioIdx];
     const totalSeries = Number(exercicioAtual?.series || 0);
-    const descansoSegundos = Number(treino?.descanso_segundos) || 60;
+
+    // Sync session to DB
+    useEffect(() => {
+        if (fase === "preparacao" || fase === "concluido") return;
+        
+        const sessao = {
+            treino_id: treino.id,
+            fase,
+            exercicioIdx,
+            serieIdx,
+            cargaAtual,
+            tempoRestante,
+            registros,
+            tempoInicio: tempoInicio?.toISOString(),
+            descansoPersonalizado
+        };
+        
+        if (onSessaoAtualizada) onSessaoAtualizada(sessao);
+        
+        const saveToDb = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+                await supabase.from("usuarios").update({ treino_ativo: sessao }).eq("id", user.id);
+            } catch(e) {}
+        }
+        
+        // Only save to DB when phase changes or registers change, not on every tick
+        saveToDb();
+    }, [fase, exercicioIdx, serieIdx, registros.length]); // Intentionally omitting tempoRestante and cargaAtual
 
     // Timer countdown
     useEffect(() => {
@@ -65,7 +95,7 @@ export default function ModalTreinoAtivo({ treino, onClose, onTreinoConcluido })
         } else {
             // Start rest timer
             setFase("descanso");
-            setTempoRestante(descansoSegundos);
+            setTempoRestante(descansoPersonalizado);
         }
     }
 
@@ -129,6 +159,10 @@ export default function ModalTreinoAtivo({ treino, onClose, onTreinoConcluido })
                 data: hoje,
             }, { onConflict: "usuario_id,data" });
 
+            // Clear active session
+            await supabase.from("usuarios").update({ treino_ativo: null }).eq("id", user.id);
+            if (onSessaoAtualizada) onSessaoAtualizada(null);
+
             if (onTreinoConcluido) onTreinoConcluido(treino.id);
         } catch (err) {
             console.error("Erro ao salvar treino:", err);
@@ -141,10 +175,23 @@ export default function ModalTreinoAtivo({ treino, onClose, onTreinoConcluido })
     const totalSeriesGeral = exercicios.reduce((a, e) => a + Number(e.series || 0), 0);
     const seriesFeitas = registros.length;
     const progressoPorcentagem = totalSeriesGeral > 0 ? Math.round((seriesFeitas / totalSeriesGeral) * 100) : 0;
-    const descansoPercent = descansoSegundos > 0 ? ((descansoSegundos - tempoRestante) / descansoSegundos) * 100 : 0;
+    const descansoPercent = descansoPersonalizado > 0 ? ((descansoPersonalizado - tempoRestante) / descansoPersonalizado) * 100 : 0;
 
     const minutos = Math.floor(tempoRestante / 60);
     const segundos = tempoRestante % 60;
+
+    async function cancelarTreino() {
+        if (window.confirm("Tem certeza que deseja cancelar este treino? O progresso atual não será salvo.")) {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    await supabase.from("usuarios").update({ treino_ativo: null }).eq("id", user.id);
+                }
+                if (onSessaoAtualizada) onSessaoAtualizada(null);
+                onClose();
+            } catch(e) {}
+        }
+    }
 
     if (!treino) return null;
 
@@ -165,9 +212,16 @@ export default function ModalTreinoAtivo({ treino, onClose, onTreinoConcluido })
                             <span className="block text-[11px] text-zinc-500">{exercicios.length} exercícios · {totalSeriesGeral} séries</span>
                         </div>
                     </div>
-                    <button onClick={() => onClose()} className="p-1 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-400/10 transition-colors">
-                        <MdClose className="size-6" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {fase !== "preparacao" && fase !== "concluido" && (
+                            <button onClick={cancelarTreino} className="text-[11px] font-semibold text-red-400 hover:text-red-300 px-2 py-1.5 rounded-lg bg-red-400/10 transition-colors">
+                                Cancelar
+                            </button>
+                        )}
+                        <button onClick={() => onClose()} className="p-1 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-400/10 transition-colors">
+                            <MdClose className="size-6" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Progress bar */}
@@ -208,6 +262,21 @@ export default function ModalTreinoAtivo({ treino, onClose, onTreinoConcluido })
                                     </div>
                                 </div>
                             ))}
+
+                            {/* Ajuste de Descanso Padrão */}
+                            <div className="flex flex-col items-center gap-2 mt-4 mb-2">
+                                <label className="text-[10px] text-zinc-500 uppercase font-semibold">Tempo de Descanso Padrão</label>
+                                <div className="flex items-center gap-2 px-3 py-2 bg-[#1A1A1A] border border-[#252525] rounded-xl focus-within:border-[#E8881A] transition-colors">
+                                    <input 
+                                        type="number" 
+                                        value={descansoPersonalizado} 
+                                        onChange={(e) => setDescansoPersonalizado(Number(e.target.value))} 
+                                        className="w-14 bg-transparent text-center text-[#E0E0E0] font-bold text-lg outline-none"
+                                        min="10" step="5"
+                                    />
+                                    <span className="text-zinc-500 text-sm font-medium">segundos</span>
+                                </div>
+                            </div>
 
                             <button
                                 onClick={iniciar}

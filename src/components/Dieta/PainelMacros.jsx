@@ -23,7 +23,7 @@ export default function PainelMacros({ macrosTotais, metaCalorias = 0 }) {
     const macros = [
         {
             label: "Proteínas",
-            valor: macrosTotais.proteinas,
+            valor: parseFloat(Number(macrosTotais.proteinas).toFixed(1)),
             unidade: "g",
             cor: {
                 bg: "rgba(59, 130, 246, 0.08)",
@@ -34,7 +34,7 @@ export default function PainelMacros({ macrosTotais, metaCalorias = 0 }) {
         },
         {
             label: "Carboidratos",
-            valor: macrosTotais.carboidratos,
+            valor: parseFloat(Number(macrosTotais.carboidratos).toFixed(1)),
             unidade: "g",
             cor: {
                 bg: "rgba(34, 197, 94, 0.08)",
@@ -45,7 +45,7 @@ export default function PainelMacros({ macrosTotais, metaCalorias = 0 }) {
         },
         {
             label: "Gorduras",
-            valor: macrosTotais.gorduras,
+            valor: parseFloat(Number(macrosTotais.gorduras).toFixed(1)),
             unidade: "g",
             cor: {
                 bg: "rgba(234, 179, 8, 0.08)",
@@ -204,11 +204,11 @@ export default function PainelMacros({ macrosTotais, metaCalorias = 0 }) {
                         Total de macronutrientes
                     </span>
                     <span className="flex items-center gap-3 text-[12px]">
-                        <span className="font-semibold text-blue-400">P {macrosTotais.proteinas}g</span>
+                        <span className="font-semibold text-blue-400">P {parseFloat(Number(macrosTotais.proteinas).toFixed(1))}g</span>
                         <span className="text-zinc-700">·</span>
-                        <span className="font-semibold text-green-400">C {macrosTotais.carboidratos}g</span>
+                        <span className="font-semibold text-green-400">C {parseFloat(Number(macrosTotais.carboidratos).toFixed(1))}g</span>
                         <span className="text-zinc-700">·</span>
-                        <span className="font-semibold text-yellow-400">G {macrosTotais.gorduras}g</span>
+                        <span className="font-semibold text-yellow-400">G {parseFloat(Number(macrosTotais.gorduras).toFixed(1))}g</span>
                     </span>
                 </div>
 

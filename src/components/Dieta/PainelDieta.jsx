@@ -223,17 +223,17 @@ export default function PainelDieta({ diaSelecionado, setDiaSelecionado, refeico
                                                     </span>
                                                     {al.proteina && (
                                                         <span className="inline-flex items-center px-1.5 py-[1px] rounded text-[10px] font-medium bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                                                            P {al.proteina}g
+                                                            P {parseFloat(Number(al.proteina).toFixed(1))}g
                                                         </span>
                                                     )}
                                                     {al.carboidrato && (
                                                         <span className="inline-flex items-center px-1.5 py-[1px] rounded text-[10px] font-medium bg-green-500/10 border border-green-500/20 text-green-400">
-                                                            C {al.carboidrato}g
+                                                            C {parseFloat(Number(al.carboidrato).toFixed(1))}g
                                                         </span>
                                                     )}
                                                     {al.gordura && (
                                                         <span className="inline-flex items-center px-1.5 py-[1px] rounded text-[10px] font-medium bg-yellow-500/10 border border-yellow-500/20 text-yellow-400">
-                                                            G {al.gordura}g
+                                                            G {parseFloat(Number(al.gordura).toFixed(1))}g
                                                         </span>
                                                     )}
                                                 </div>

@@ -71,6 +71,7 @@ export default function Dashboard() {
         } catch { return [] }
     })
     const [treinoAtivo, setTreinoAtivo] = useState(null)
+    const [sessaoAtiva, setSessaoAtiva] = useState(null)
     const navigate = useNavigate()
 
     const hoje = DIAS_SEMANA[new Date().getDay()]
@@ -88,15 +89,47 @@ export default function Dashboard() {
                 return
             }
 
-            const [perfilRes, treinoRes, refeicaoRes] = await Promise.all([
+            const hojeDataStr = new Date().toISOString().split('T')[0]
+            
+            // Calculate start of week for fetching completed workouts
+            const d = new Date()
+            const diffToSeg = d.getDay() === 0 ? -6 : 1 - d.getDay()
+            const segunda = new Date(d)
+            segunda.setDate(d.getDate() + diffToSeg)
+            const semanaStr = `${segunda.getFullYear()}-${String(segunda.getMonth() + 1).padStart(2, '0')}-${String(segunda.getDate()).padStart(2, '0')}`
+
+            const [perfilRes, treinoRes, refeicaoRes, metricasRes, treinosConcluidosRes] = await Promise.all([
                 supabase.from("usuarios").select().eq("id", user.id).single(),
                 supabase.from("treinos").select(),
                 supabase.from("refeicoes").select(),
+                supabase.from("metricas_diarias").select().eq("usuario_id", user.id).eq("data", hojeDataStr).maybeSingle(),
+                supabase.from("treinos_concluidos").select("treino_id").eq("usuario_id", user.id).gte("data", semanaStr)
             ])
 
-            if (perfilRes.data) setPerfil(perfilRes.data)
+            if (perfilRes.data) {
+                setPerfil(perfilRes.data)
+                if (perfilRes.data.treino_ativo) {
+                    setSessaoAtiva(perfilRes.data.treino_ativo)
+                }
+            }
             if (treinoRes.data) setTreinos(treinoRes.data)
             if (refeicaoRes.data) setRefeicoes(refeicaoRes.data)
+
+            if (metricasRes.data) {
+                if (metricasRes.data.agua_ml !== undefined) {
+                    setAguaML(metricasRes.data.agua_ml)
+                    localStorage.setItem(getHojeKey('agua'), metricasRes.data.agua_ml)
+                }
+                if (metricasRes.data.refeicoes_concluidas) {
+                    setRefeicoesConcluidas(metricasRes.data.refeicoes_concluidas)
+                    localStorage.setItem(getHojeKey('dieta'), JSON.stringify(metricasRes.data.refeicoes_concluidas))
+                }
+            }
+            if (treinosConcluidosRes.data) {
+                const ids = treinosConcluidosRes.data.map(tc => tc.treino_id)
+                setTreinosConcluidos(ids)
+                localStorage.setItem(getSemanaKey(), JSON.stringify(ids))
+            }
         } catch (error) {
             // silencioso
         } finally {
@@ -142,16 +175,55 @@ export default function Dashboard() {
         setRefeicoesConcluidas(prev => {
             const novo = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
             localStorage.setItem(getHojeKey('dieta'), JSON.stringify(novo))
+            
+            const novoMacros = refeicaoHoje.filter(r => novo.includes(r.id)).reduce((acc, ref) => {
+                (ref.alimentos || []).forEach(al => {
+                    acc.calorias += Number(al.calorias || 0)
+                    acc.proteinas += Number(al.proteina || 0)
+                    acc.carboidratos += Number(al.carboidrato || 0)
+                    acc.gorduras += Number(al.gordura || 0)
+                })
+                return acc
+            }, { calorias: 0, proteinas: 0, carboidratos: 0, gorduras: 0 })
+
+            salvarMetricaDiaria({ 
+                refeicoes_concluidas: novo,
+                calorias_consumidas: novoMacros.calorias,
+                proteinas_g: novoMacros.proteinas,
+                carboidratos_g: novoMacros.carboidratos,
+                gorduras_g: novoMacros.gorduras
+            })
+
             return novo
         })
     }
 
-    function toggleTreinoConcluido(treinoId) {
+    async function toggleTreinoConcluido(treinoId) {
+        const jaConcluido = treinosConcluidos.includes(treinoId)
         setTreinosConcluidos(prev => {
-            const novo = prev.includes(treinoId) ? prev.filter(x => x !== treinoId) : [...prev, treinoId]
+            const novo = jaConcluido ? prev.filter(x => x !== treinoId) : [...prev, treinoId]
             localStorage.setItem(getSemanaKey(), JSON.stringify(novo))
             return novo
         })
+        
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+            const hojeDataStr = new Date().toISOString().split('T')[0]
+            
+            if (jaConcluido) {
+                await supabase.from('treinos_concluidos').delete().eq('usuario_id', user.id).eq('treino_id', treinoId).eq('data', hojeDataStr)
+            } else {
+                const treino = treinos.find(t => t.id === treinoId)
+                await supabase.from('treinos_concluidos').insert({
+                    usuario_id: user.id,
+                    treino_id: treinoId,
+                    treino_nome: treino?.nome || 'Treino',
+                    data: hojeDataStr,
+                    duracao_minutos: 0
+                })
+            }
+        } catch(e) {}
     }
 
     // Dados derivados para checklist semanal
@@ -354,9 +426,9 @@ export default function Dashboard() {
 
                                         {/* Macros das refeições concluídas */}
                                         <div className="grid grid-cols-3 gap-3">
-                                            <MacroMini label="Proteína" valor={macrosHoje.proteinas} cor="#60A5FA" bg="rgba(59,130,246,0.08)" border="rgba(59,130,246,0.2)" />
-                                            <MacroMini label="Carboidrato" valor={macrosHoje.carboidratos} cor="#4ADE80" bg="rgba(34,197,94,0.08)" border="rgba(34,197,94,0.2)" />
-                                            <MacroMini label="Gordura" valor={macrosHoje.gorduras} cor="#FACC15" bg="rgba(234,179,8,0.08)" border="rgba(234,179,8,0.2)" />
+                                            <MacroMini label="Proteína" valor={parseFloat(Number(macrosHoje.proteinas).toFixed(1))} cor="#60A5FA" bg="rgba(59,130,246,0.08)" border="rgba(59,130,246,0.2)" />
+                                            <MacroMini label="Carboidrato" valor={parseFloat(Number(macrosHoje.carboidratos).toFixed(1))} cor="#4ADE80" bg="rgba(34,197,94,0.08)" border="rgba(34,197,94,0.2)" />
+                                            <MacroMini label="Gordura" valor={parseFloat(Number(macrosHoje.gorduras).toFixed(1))} cor="#FACC15" bg="rgba(234,179,8,0.08)" border="rgba(234,179,8,0.2)" />
                                         </div>
 
                                         {/* Checklist de refeições */}
@@ -402,7 +474,7 @@ export default function Dashboard() {
                                                                 {calRef} kcal
                                                             </span>
                                                             <span className="text-[10px] text-zinc-600">
-                                                                {protRef}g prot
+                                                                {parseFloat(Number(protRef).toFixed(1))}g prot
                                                             </span>
                                                         </div>
                                                     </button>
@@ -584,6 +656,7 @@ export default function Dashboard() {
                                                 return a + (Number(e.series || 0) * Number(e.repeticoes || 0) * Number(e.carga || 0))
                                             }, 0)
                                             const jaConcluido = treinosConcluidos.includes(treino.id)
+                                            const emAndamento = sessaoAtiva && sessaoAtiva.treino_id === treino.id
 
                                             return (
                                                 <div key={treino.id} className="flex flex-col bg-[#1A1A1A] border border-[#252525] rounded-xl overflow-hidden">
@@ -618,11 +691,15 @@ export default function Dashboard() {
                                                         className={`flex items-center justify-center gap-2 mx-4 mb-4 mt-1 py-3 text-[13px] font-bold rounded-xl transition-all duration-200 active:scale-[0.98] ${
                                                             jaConcluido
                                                                 ? 'bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] cursor-default'
-                                                                : 'bg-gradient-to-r from-[#E8881A] to-[#F09530] text-[#111] cursor-pointer hover:shadow-[0_0_24px_rgba(232,136,26,0.25)]'
+                                                                : emAndamento
+                                                                    ? 'bg-[#E8881A]/10 border border-[#E8881A]/20 text-[#E8881A] cursor-pointer hover:bg-[#E8881A]/20'
+                                                                    : 'bg-gradient-to-r from-[#E8881A] to-[#F09530] text-[#111] cursor-pointer hover:shadow-[0_0_24px_rgba(232,136,26,0.25)]'
                                                         }`}
                                                     >
                                                         {jaConcluido ? (
                                                             <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> Treino Concluído</>
+                                                        ) : emAndamento ? (
+                                                            <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg> Continuar Treino</>
                                                         ) : (
                                                             <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg> Treinar Agora</>                                                        )}
                                                     </button>
@@ -860,8 +937,14 @@ export default function Dashboard() {
             {treinoAtivo && (
                 <ModalTreinoAtivo
                     treino={treinoAtivo}
+                    sessaoAtiva={sessaoAtiva?.treino_id === treinoAtivo.id ? sessaoAtiva : null}
                     onClose={() => setTreinoAtivo(null)}
-                    onTreinoConcluido={handleTreinoConcluido}
+                    onTreinoConcluido={(id) => {
+                        handleTreinoConcluido(id)
+                        setTreinoAtivo(null)
+                        setSessaoAtiva(null)
+                    }}
+                    onSessaoAtualizada={setSessaoAtiva}
                 />
             )}
         </div>

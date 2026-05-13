@@ -42,7 +42,7 @@ export default function Login() {
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
                     </span>
-                    <h2 className="text-2xl font-bold text-[#F0F0F0] tracking-tight mb-1">Bem-vindo de volta</h2>
+                    <h2 className="text-2xl font-bold text-[#F0F0F0] tracking-tight mb-1">Bem-vindo!</h2>
                     <p className="text-sm text-zinc-500">Entre com seus dados para acessar seus treinos</p>
                 </div>
 

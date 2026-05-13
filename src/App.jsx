@@ -8,6 +8,7 @@ import Perfil from './pages/Perfil'
 import Metricas from './pages/Metricas'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
+import InstallPrompt from './components/PWA/InstallPrompt'
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
         <Route path='/metricas' element={<Metricas />} />
         <Route path='/perfil' element={<Perfil />} />
       </Routes>
+      <InstallPrompt />
     </BrowserRouter>
   )
 }

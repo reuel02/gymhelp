@@ -142,7 +142,6 @@ export default function CardTreino({ treino, onModalEdicao, removerTreino }) {
                     {totalSeries} séries totais
                 </span>
             </div>
-
         </div>
     );
 }
