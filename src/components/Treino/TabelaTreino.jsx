@@ -135,7 +135,10 @@ function TreinoRow({ treino, onModalEdicao, removerTreino }) {
 export default function TabelaTreino({ onModal, onModalEdicao, treinos, erro, removerTreino }) {
     const [busca, setBusca] = useState("")
 
-    let treinoFiltrados = treinos.filter(treino => treino.nome.toLowerCase().includes(busca.toLowerCase()))
+    const DIAS_ORDEM = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+    let treinoFiltrados = treinos
+        .filter(treino => treino.nome.toLowerCase().includes(busca.toLowerCase()))
+        .sort((a, b) => DIAS_ORDEM.indexOf(a.dia) - DIAS_ORDEM.indexOf(b.dia))
 
     return (
         <div className="flex justify-center items-start pt-6 sm:pt-10 px-3 sm:px-4 pb-6 font-sans">

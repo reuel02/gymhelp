@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import ModalTreinoAtivo from "@/components/Treino/ModalTreinoAtivo";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabase";
@@ -69,6 +70,7 @@ export default function Dashboard() {
             return salvo ? JSON.parse(salvo) : []
         } catch { return [] }
     })
+    const [treinoAtivo, setTreinoAtivo] = useState(null)
     const navigate = useNavigate()
 
     const hoje = DIAS_SEMANA[new Date().getDay()]
@@ -170,6 +172,7 @@ export default function Dashboard() {
         setAguaML(prev => {
             const novo = prev + ml
             localStorage.setItem(getHojeKey('agua'), novo)
+            salvarMetricaDiaria({ agua_ml: novo })
             return novo
         })
     }
@@ -178,8 +181,26 @@ export default function Dashboard() {
         setAguaML(prev => {
             const novo = Math.max(0, prev - ml)
             localStorage.setItem(getHojeKey('agua'), novo)
+            salvarMetricaDiaria({ agua_ml: novo })
             return novo
         })
+    }
+
+    async function salvarMetricaDiaria(campos) {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+            const hoje = new Date().toISOString().split('T')[0]
+            await supabase.from('metricas_diarias').upsert({
+                usuario_id: user.id,
+                data: hoje,
+                ...campos,
+            }, { onConflict: 'usuario_id,data' })
+        } catch (e) { /* silent */ }
+    }
+
+    function handleTreinoConcluido(treinoId) {
+        toggleTreinoConcluido(treinoId)
     }
 
     return (
@@ -562,6 +583,7 @@ export default function Dashboard() {
                                             const volumeTotal = treino.exercicios.reduce((a, e) => {
                                                 return a + (Number(e.series || 0) * Number(e.repeticoes || 0) * Number(e.carga || 0))
                                             }, 0)
+                                            const jaConcluido = treinosConcluidos.includes(treino.id)
 
                                             return (
                                                 <div key={treino.id} className="flex flex-col bg-[#1A1A1A] border border-[#252525] rounded-xl overflow-hidden">
@@ -589,6 +611,21 @@ export default function Dashboard() {
                                                         <span className="text-[11px] text-zinc-500">{totalSeries} séries totais</span>
                                                         <span className="text-[12px] font-bold text-[#E8881A]">{volumeTotal.toLocaleString("pt-BR")} kg vol.</span>
                                                     </div>
+                                                    {/* Botão Iniciar Treino */}
+                                                    <button
+                                                        onClick={() => setTreinoAtivo(treino)}
+                                                        disabled={jaConcluido}
+                                                        className={`flex items-center justify-center gap-2 mx-4 mb-4 mt-1 py-3 text-[13px] font-bold rounded-xl transition-all duration-200 active:scale-[0.98] ${
+                                                            jaConcluido
+                                                                ? 'bg-[#4ADE80]/10 border border-[#4ADE80]/20 text-[#4ADE80] cursor-default'
+                                                                : 'bg-gradient-to-r from-[#E8881A] to-[#F09530] text-[#111] cursor-pointer hover:shadow-[0_0_24px_rgba(232,136,26,0.25)]'
+                                                        }`}
+                                                    >
+                                                        {jaConcluido ? (
+                                                            <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> Treino Concluído</>
+                                                        ) : (
+                                                            <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg> Treinar Agora</>                                                        )}
+                                                    </button>
                                                 </div>
                                             )
                                         })}
@@ -819,6 +856,14 @@ export default function Dashboard() {
                     </div>
                 </main>
             </div>
+
+            {treinoAtivo && (
+                <ModalTreinoAtivo
+                    treino={treinoAtivo}
+                    onClose={() => setTreinoAtivo(null)}
+                    onTreinoConcluido={handleTreinoConcluido}
+                />
+            )}
         </div>
     )
 }

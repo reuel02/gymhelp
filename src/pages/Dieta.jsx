@@ -2,6 +2,7 @@ import FormTMB from "@/components/Dieta/FormTMB";
 import PainelMacros from "@/components/Dieta/PainelMacros";
 import PainelDieta from "@/components/Dieta/PainelDieta";
 import ModalRefeicao from "@/components/Dieta/ModalRefeicao";
+import ModalCopiarRefeicoes from "@/components/Dieta/ModalCopiarRefeicoes";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { useState, useEffect } from "react";
@@ -28,6 +29,8 @@ export default function Dieta() {
     const [alimentos, setAlimentos] = useState([])
     const [observacoes, setObservacoes] = useState('')
     const [salvando, setSalvando] = useState(false)
+    const [abrirModalCopiar, setAbrirModalCopiar] = useState(false)
+    const [copiando, setCopiando] = useState(false)
 
     // Macros states
     const [macros, setMacros] = useState({ calorias: 0, proteinas: 0, carboidratos: 0, gorduras: 0 })
@@ -224,6 +227,37 @@ export default function Dieta() {
         }
     }
 
+    async function copiarRefeicoes(diaOrigem) {
+        if (copiando) return
+        setCopiando(true)
+
+        try {
+            const { data: dadosUsuario } = await supabase.auth.getUser()
+            if (!dadosUsuario?.user) throw new Error("Usuário não está logado.")
+
+            const refeicoesDoDia = refeicoes.filter(r => r.dia === diaOrigem)
+
+            for (const ref of refeicoesDoDia) {
+                const { error } = await supabase.from('refeicoes').insert({
+                    usuario_id: dadosUsuario.user.id,
+                    dia: diaSelecionado,
+                    tipo: ref.tipo,
+                    alimentos: ref.alimentos,
+                    observacoes: ref.observacoes || '',
+                })
+                if (error) throw error
+            }
+
+            alert(`${refeicoesDoDia.length} refeição(ões) copiadas de ${diaOrigem} para ${diaSelecionado}!`)
+            setAbrirModalCopiar(false)
+            buscarRefeicoes()
+        } catch (error) {
+            alert("Erro ao copiar refeições: " + error.message)
+        } finally {
+            setCopiando(false)
+        }
+    }
+
     return (
         <div className="min-h-screen bg-fundo">
             <Sidebar />
@@ -253,6 +287,7 @@ export default function Dieta() {
                         onAdicionarRefeicao={abrirModalNovo}
                         onEditarRefeicao={abrirModalEdicao}
                         onRemoverRefeicao={removerRefeicao}
+                        onCopiarRefeicoes={() => setAbrirModalCopiar(true)}
                     />
                 </main>
             </div>
@@ -270,6 +305,16 @@ export default function Dieta() {
                     onSalvar={salvarRefeicao}
                     salvando={salvando}
                     modoEdicao={modoEdicao}
+                />
+            )}
+
+            {abrirModalCopiar && (
+                <ModalCopiarRefeicoes
+                    onClose={setAbrirModalCopiar}
+                    refeicoes={refeicoes}
+                    diaDestino={diaSelecionado}
+                    onCopiar={copiarRefeicoes}
+                    copiando={copiando}
                 />
             )}
         </div>

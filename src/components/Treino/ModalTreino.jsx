@@ -6,7 +6,7 @@ import { MdClose } from "react-icons/md";
 
 const exercicioVazio = { nome: "", series: "", repeticoes: "", carga: "" };
 
-export default function ModalTreino({ onClose, setNome, setDia, setExercicios, setObservacoes, exercicios, adicionarExercicioVazio, dia, removerExercicio, nome, salvarTreino, salvando }) {
+export default function ModalTreino({ onClose, setNome, setDia, setExercicios, setObservacoes, exercicios, adicionarExercicioVazio, dia, removerExercicio, nome, salvarTreino, salvando, descanso, setDescanso }) {
     const formularioInvalido = nome === "" || dia === "" || exercicios.length === 0 || exercicios.some(ex => ex.nome === "" || ex.series === "" || ex.repeticoes === "" || ex.carga === "");
 
     return (
@@ -163,6 +163,26 @@ export default function ModalTreino({ onClose, setNome, setDia, setExercicios, s
                                 <path d="M12 8v4M12 16h.01" />
                             </svg>
                             <span>Adicione quantos exercícios quiser. Clique em "+ Adicionar" para incluir mais.</span>
+                        </div>
+                    </div>
+
+                    <div className="h-px bg-[#1F1F1F] mx-6" />
+
+                    {/* Tempo de descanso */}
+                    <div className="p-5 px-6">
+                        <label className="block text-xs font-semibold text-zinc-500 tracking-wide uppercase mb-3">Tempo de descanso entre séries</label>
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 px-3 border border-[#2A2A2A] rounded-lg bg-[#181818] focus-within:border-[#E8881A] transition-colors duration-150 py-2 w-32">
+                                <input className="bg-transparent border-none outline-none text-[#E0E0E0] text-sm w-full font-sans" type="number" min="10" max="300" step="5" placeholder="60" value={descanso} onChange={(e) => setDescanso(e.target.value)} />
+                                <span className="text-zinc-500 text-[11px] whitespace-nowrap">seg</span>
+                            </div>
+                            <div className="flex gap-1.5">
+                                {[30, 60, 90, 120].map(v => (
+                                    <button key={v} type="button" onClick={() => setDescanso(v)}
+                                        className={`py-1.5 px-2.5 text-[11px] font-medium rounded-md border transition-all duration-150 cursor-pointer font-sans ${Number(descanso) === v ? 'bg-[#E8881A]/20 border-[#E8881A] text-[#E8881A]' : 'bg-[#1E1E1E] border-[#333] text-zinc-500 hover:border-[#E8881A] hover:text-[#E8881A]'}`}
+                                    >{v}s</button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

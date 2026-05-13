@@ -9,6 +9,8 @@ import { ModalEdicaoTreino } from "@/components/Treino/ModalEdicaoTreino";
 import { ModalDeletarTreino } from "@/components/Treino/ModalDeletarTreino";
 import CardTreino from "@/components/Treino/CardTreino";
 
+const DIAS_ORDEM = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+
 export default function Treino() {
     const [abrirModal, setAbrirModal] = useState(false)
     const [abrirModalEdicao, setAbrirModalEdicao] = useState(false)
@@ -20,6 +22,7 @@ export default function Treino() {
     const [dia, setDia] = useState("")
     const [exercicios, setExercicios] = useState([])
     const [observacoes, setObservacoes] = useState("")
+    const [descanso, setDescanso] = useState(60)
     const [salvando, setSalvando] = useState(false)
     const [erro, setErro] = useState("")
     const navigate = useNavigate()
@@ -84,7 +87,8 @@ export default function Treino() {
                 nome,
                 dia,
                 observacoes,
-                exercicios
+                exercicios,
+                descanso_segundos: Number(descanso) || 60
             })
 
             if (error) {
@@ -119,7 +123,8 @@ export default function Treino() {
                 nome,
                 dia,
                 observacoes,
-                exercicios
+                exercicios,
+                descanso_segundos: Number(descanso) || 60
             }).eq('id', treino.id)
 
             if (error) {
@@ -167,13 +172,14 @@ export default function Treino() {
     }
 
     function abrirModalParaEdicao(treinoAlvo) {
-        setTreino(treinoAlvo) // Guarda o treino inteiro (pra sabermos o ID depois)
+        setTreino(treinoAlvo)
         setNome(treinoAlvo.nome)
         setDia(treinoAlvo.dia)
         setExercicios(treinoAlvo.exercicios)
         setObservacoes(treinoAlvo.observacoes || "")
+        setDescanso(treinoAlvo.descanso_segundos || 60)
 
-        setAbrirModalEdicao(true) // Pronto, dados injetados, agora pode abrir o modal!
+        setAbrirModalEdicao(true)
     }
 
 
@@ -186,7 +192,7 @@ export default function Treino() {
                     <TabelaTreino onModal={setAbrirModal} onModalEdicao={abrirModalParaEdicao} treinos={treinos} erro={erro} removerTreino={prepararDelecao} />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 sm:px-6 pb-10 mt-7">
-                        {treinos.map((treino) => (
+                        {[...treinos].sort((a, b) => DIAS_ORDEM.indexOf(a.dia) - DIAS_ORDEM.indexOf(b.dia)).map((treino) => (
                             <CardTreino key={treino.id} treino={treino} onModalEdicao={setAbrirModalEdicao} removerTreino={prepararDelecao} />
                         ))}
                     </div>
@@ -197,6 +203,7 @@ export default function Treino() {
                     setExercicios={setExercicios} setObservacoes={setObservacoes} exercicios={exercicios}
                     adicionarExercicioVazio={adicionarExercicioVazio} dia={dia} removerExercicio={removerExercicio}
                     nome={nome} salvarTreino={salvarTreino} salvando={salvando}
+                    descanso={descanso} setDescanso={setDescanso}
                 />
             )}
 
@@ -205,6 +212,7 @@ export default function Treino() {
                     setExercicios={setExercicios} setObservacoes={setObservacoes} exercicios={exercicios}
                     adicionarExercicioVazio={adicionarExercicioVazio} dia={dia} removerExercicio={removerExercicio}
                     nome={nome} atualizarTreino={atualizarTreino} salvando={salvando} treino={treino} observacoes={observacoes}
+                    descanso={descanso} setDescanso={setDescanso}
                 />
             )}
 

@@ -59,7 +59,7 @@ function TipoIcon({ tipo }) {
     return <span className="text-sm">{icones[tipo] || "🍴"}</span>;
 }
 
-export default function PainelDieta({ diaSelecionado, setDiaSelecionado, refeicoes, onAdicionarRefeicao, onEditarRefeicao, onRemoverRefeicao }) {
+export default function PainelDieta({ diaSelecionado, setDiaSelecionado, refeicoes, onAdicionarRefeicao, onEditarRefeicao, onRemoverRefeicao, onCopiarRefeicoes }) {
     const refeicoesDoDia = refeicoes.filter(r => r.dia === diaSelecionado);
 
     const totalCaloriasDia = refeicoesDoDia.reduce((total, ref) => {
@@ -131,19 +131,33 @@ export default function PainelDieta({ diaSelecionado, setDiaSelecionado, refeico
                 {/* Conteúdo do dia selecionado */}
                 <div className="px-5 sm:px-6 py-5 sm:py-6 flex flex-col gap-3 min-h-[160px]">
 
-                    {/* Título do dia */}
+                    {/* Título do dia + ações */}
                     <div className="flex items-center justify-between mb-1">
                         <h3 className="text-[14px] font-semibold text-[#E0E0E0] tracking-tight">
                             {diaSelecionado}
                         </h3>
-                        <button
-                            type="button"
-                            onClick={onAdicionarRefeicao}
-                            className="flex items-center gap-1.5 py-1.5 px-3 text-xs font-semibold text-[#E8881A] bg-[#E8881A]/10 border-none rounded-md cursor-pointer transition-colors duration-150 font-sans tracking-wide hover:bg-[#E8881A] hover:text-[#111]"
-                        >
-                            <IconPlus />
-                            Adicionar refeição
-                        </button>
+                        <div className="flex items-center gap-2">
+                            {onCopiarRefeicoes && (
+                                <button
+                                    type="button"
+                                    onClick={onCopiarRefeicoes}
+                                    className="flex items-center gap-1.5 py-1.5 px-3 text-xs font-semibold text-[#A855F7] bg-[#A855F7]/10 border-none rounded-md cursor-pointer transition-colors duration-150 font-sans tracking-wide hover:bg-[#A855F7] hover:text-[#111]"
+                                >
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg>
+                                    Copiar
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                onClick={onAdicionarRefeicao}
+                                className="flex items-center gap-1.5 py-1.5 px-3 text-xs font-semibold text-[#E8881A] bg-[#E8881A]/10 border-none rounded-md cursor-pointer transition-colors duration-150 font-sans tracking-wide hover:bg-[#E8881A] hover:text-[#111]"
+                            >
+                                <IconPlus />
+                                Adicionar refeição
+                            </button>
+                        </div>
                     </div>
 
                     {/* Lista de refeições */}

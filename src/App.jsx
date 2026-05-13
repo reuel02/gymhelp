@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import { Cadastro } from './pages/Cadastro'
 import Dieta from './pages/Dieta'
 import Perfil from './pages/Perfil'
+import Metricas from './pages/Metricas'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
 
@@ -20,6 +21,7 @@ function App() {
         <Route path='/redefinir-senha' element={<RedefinirSenha />} />
         <Route path='/treino' element={<Treino />} />
         <Route path='/dieta' element={<Dieta />} />
+        <Route path='/metricas' element={<Metricas />} />
         <Route path='/perfil' element={<Perfil />} />
       </Routes>
     </BrowserRouter>

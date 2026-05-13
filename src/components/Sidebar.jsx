@@ -1,6 +1,6 @@
 import { LiaDumbbellSolid } from "react-icons/lia";
 import { MdOutlineFoodBank } from "react-icons/md";
-import { FiHome, FiUser, FiLogOut } from "react-icons/fi";
+import { FiHome, FiUser, FiLogOut, FiBarChart2 } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 import logoSvg from '../assets/logo.svg'
 import supabase from '../lib/supabase'
@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/", label: "Dashboard", icon: FiHome },
   { href: "/treino", label: "Treino", icon: LiaDumbbellSolid },
   { href: "/dieta", label: "Dieta", icon: MdOutlineFoodBank },
+  { href: "/metricas", label: "Métricas", icon: FiBarChart2 },
   { href: "/perfil", label: "Perfil", icon: FiUser },
 ];
 
