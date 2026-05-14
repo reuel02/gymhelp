@@ -298,8 +298,6 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
                                     </div>
                                 </div>
                             ))}
-<<<<<<< HEAD
-
                             {/* Ajuste de Descanso Padrão */}
                             <div className="flex flex-col items-center gap-2 mt-4 mb-2">
                                 <label className="text-[10px] text-zinc-500 uppercase font-semibold">Tempo de Descanso Padrão</label>
@@ -314,9 +312,6 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
                                     <span className="text-zinc-500 text-sm font-medium">segundos</span>
                                 </div>
                             </div>
-
-=======
->>>>>>> bc95787 (Implementando pagina de evolucao e responsividade mobile)
                             <button
                                 onClick={iniciar}
                                 className="w-full mt-2 flex items-center justify-center gap-2 py-4 text-[15px] font-bold text-[#111] bg-gradient-to-r from-[#E8881A] to-[#F09530] rounded-xl cursor-pointer transition-all duration-200 hover:shadow-[0_0_30px_rgba(232,136,26,0.3)] active:scale-[0.98]"
