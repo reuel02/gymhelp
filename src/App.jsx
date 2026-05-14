@@ -9,6 +9,7 @@ import Metricas from './pages/Metricas'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
 import InstallPrompt from './components/PWA/InstallPrompt'
+import Evolucao from './pages/Evolucao'
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
         <Route path='/dieta' element={<Dieta />} />
         <Route path='/metricas' element={<Metricas />} />
         <Route path='/perfil' element={<Perfil />} />
+        <Route path='/evolucao' element={<Evolucao />} />
       </Routes>
       <InstallPrompt />
     </BrowserRouter>

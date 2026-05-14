@@ -1,4 +1,5 @@
 import logoSvg from "../assets/logo.svg";
+import { FiMenu } from "react-icons/fi";
 
 export default function Header() {
   const diaDaSemana = new Date().toLocaleDateString("pt-BR", { weekday: "long" });
@@ -13,8 +14,14 @@ export default function Header() {
   return (
     <div className="flex flex-row justify-between items-center bg-card border-b border-zinc-800 px-4 lg:px-6 py-3">
 
-      {/* Logo visível apenas no mobile (sidebar cuida do desktop) */}
-      <div className="flex items-center lg:hidden">
+      {/* Logo e Menu Hambúrguer (mobile) */}
+      <div className="flex items-center gap-3 lg:hidden">
+        <button 
+          onClick={() => window.dispatchEvent(new Event('open-sidebar'))}
+          className="text-zinc-400 hover:text-white p-1 rounded-md bg-zinc-800/50"
+        >
+          <FiMenu className="size-6" />
+        </button>
         <img src={logoSvg} alt="Logo GYM HELP" className="h-8" />
       </div>
 

@@ -123,7 +123,7 @@ export default function Metricas() {
                                         <MetricCard label="Treinos" value={totalTreinos} icon="🏋️" cor={{ bg: "rgba(232,136,26,0.08)", border: "rgba(232,136,26,0.2)", text: "#E8881A" }} />
                                         <MetricCard label="Calorias" value={totalCalorias.toLocaleString("pt-BR")} suffix=" kcal" icon="🔥" cor={{ bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", text: "#F87171" }} />
                                         <MetricCard label="Água" value={(totalAgua / 1000).toFixed(1)} suffix=" L" icon="💧" cor={{ bg: "rgba(56,189,248,0.08)", border: "rgba(56,189,248,0.2)", text: "#38BDF8" }} />
-                                        <MetricCard label="Proteínas" value={totalProteinas} suffix=" g" icon="🥩" cor={{ bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", text: "#60A5FA" }} />
+                                        <MetricCard label="Proteínas" value={Number.isInteger(Number(totalProteinas)) ? totalProteinas : Number(totalProteinas).toFixed(1)} suffix=" g" icon="🥩" cor={{ bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", text: "#60A5FA" }} />
                                     </div>
 
                                     {/* Daily averages */}

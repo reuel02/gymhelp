@@ -969,10 +969,11 @@ function StatItem({ label, value, suffix = "", cor = null }) {
 }
 
 function MacroMini({ label, valor, cor, bg, border }) {
+    const formattedValor = Number.isInteger(Number(valor)) ? valor : Number(valor).toFixed(1);
     return (
         <div className="flex flex-col items-center gap-1 p-3 rounded-xl border" style={{ background: bg, borderColor: border }}>
             <span className="text-[10px] font-semibold tracking-wide uppercase" style={{ color: cor }}>{label}</span>
-            <span className="text-lg font-bold tracking-tight" style={{ color: cor }}>{valor}<span className="text-xs text-zinc-500 font-medium">g</span></span>
+            <span className="text-lg font-bold tracking-tight" style={{ color: cor }}>{formattedValor}<span className="text-xs text-zinc-500 font-medium">g</span></span>
         </div>
     )
 }
