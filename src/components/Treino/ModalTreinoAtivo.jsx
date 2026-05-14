@@ -211,12 +211,7 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
     const totalSeriesGeral = exerciciosAtivos.reduce((a, e) => a + Number(e.series || 0), 0);
     const seriesFeitas = registros.length;
     const progressoPorcentagem = totalSeriesGeral > 0 ? Math.round((seriesFeitas / totalSeriesGeral) * 100) : 0;
-<<<<<<< HEAD
     const descansoPercent = descansoPersonalizado > 0 ? ((descansoPersonalizado - tempoRestante) / descansoPersonalizado) * 100 : 0;
-
-=======
-    const descansoPercent = descansoSegundos > 0 ? ((descansoSegundos - tempoRestante) / descansoSegundos) * 100 : 0;
->>>>>>> bc95787 (Implementando pagina de evolucao e responsividade mobile)
     const minutos = Math.floor(tempoRestante / 60);
     const segundos = tempoRestante % 60;
 
