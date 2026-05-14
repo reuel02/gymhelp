@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { MdClose } from "react-icons/md";
 import supabase from "@/lib/supabase";
+import { getHojeISO } from "@/lib/utils";
 
 export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTreinoConcluido, onSessaoAtualizada }) {
     const [fase, setFase] = useState(sessaoAtiva?.fase || "preparacao"); // preparacao | lista | serie | descanso | concluido
@@ -165,7 +166,7 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
                 repeticoes: r.repeticoesPlano,
                 reps_performed: r.repeticoesReais,
                 series: r.serieIdx + 1,
-                data: new Date().toISOString().split("T")[0],
+                data: getHojeISO(),
             }));
 
             if (cargas.length > 0) {
@@ -177,7 +178,7 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
                 .select("id")
                 .eq("usuario_id", user.id)
                 .eq("treino_id", treino.id)
-                .eq("data", new Date().toISOString().split("T")[0])
+                .eq("data", getHojeISO())
                 .maybeSingle();
 
             if (!existente) {
@@ -185,12 +186,12 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
                     usuario_id: user.id,
                     treino_id: treino.id,
                     treino_nome: treino.nome,
-                    data: new Date().toISOString().split("T")[0],
+                    data: getHojeISO(),
                     duracao_minutos: duracaoMin,
                 });
             }
 
-            const hoje = new Date().toISOString().split("T")[0];
+            const hoje = getHojeISO();
             await supabase.from("metricas_diarias").upsert({
                 usuario_id: user.id,
                 data: hoje,

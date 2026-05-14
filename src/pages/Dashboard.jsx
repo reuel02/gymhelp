@@ -4,6 +4,7 @@ import ModalTreinoAtivo from "@/components/Treino/ModalTreinoAtivo";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabase";
+import { getHojeISO } from "@/lib/utils";
 
 const DIAS_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 const OBJETIVO_LABEL = { emagrecer: "Emagrecer", manter: "Manter peso", ganhar: "Ganhar massa" };
@@ -15,8 +16,7 @@ const OBJETIVO_COR = {
 
 // Helper para chave do localStorage por dia
 function getHojeKey(prefixo = 'agua') {
-    const d = new Date()
-    return `${prefixo}_${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    return `${prefixo}_${getHojeISO()}`
 }
 
 // Chave semanal — reseta todo domingo (baseada na segunda-feira da semana)
@@ -72,6 +72,7 @@ export default function Dashboard() {
     })
     const [treinoAtivo, setTreinoAtivo] = useState(null)
     const [sessaoAtiva, setSessaoAtiva] = useState(null)
+    const [dataDashboard, setDataDashboard] = useState(getHojeISO())
     const navigate = useNavigate()
 
     const hoje = DIAS_SEMANA[new Date().getDay()]
@@ -79,6 +80,20 @@ export default function Dashboard() {
     useEffect(() => {
         carregarDados()
     }, [])
+
+    // Monitora virada do dia para resetar estado
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const hoje = getHojeISO()
+            if (hoje !== dataDashboard) {
+                setDataDashboard(hoje)
+                setAguaML(0)
+                setRefeicoesConcluidas([])
+                carregarDados()
+            }
+        }, 1000 * 30) // Checa a cada 30s
+        return () => clearInterval(interval)
+    }, [dataDashboard])
 
     async function carregarDados() {
         try {
@@ -89,7 +104,7 @@ export default function Dashboard() {
                 return
             }
 
-            const hojeDataStr = new Date().toISOString().split('T')[0]
+            const hojeDataStr = getHojeISO()
             
             // Calculate start of week for fetching completed workouts
             const d = new Date()
@@ -173,8 +188,13 @@ export default function Dashboard() {
 
     function toggleRefeicao(id) {
         setRefeicoesConcluidas(prev => {
-            const novo = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-            localStorage.setItem(getHojeKey('dieta'), JSON.stringify(novo))
+            const key = getHojeKey('dieta')
+            const salvoStr = localStorage.getItem(key)
+            // Se o dia virou, ignoramos o estado anterior (prev)
+            const base = salvoStr ? JSON.parse(salvoStr) : []
+            const novo = base.includes(id) ? base.filter(x => x !== id) : [...base, id]
+            
+            localStorage.setItem(key, JSON.stringify(novo))
             
             const novoMacros = refeicaoHoje.filter(r => novo.includes(r.id)).reduce((acc, ref) => {
                 (ref.alimentos || []).forEach(al => {
@@ -209,7 +229,7 @@ export default function Dashboard() {
         try {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
-            const hojeDataStr = new Date().toISOString().split('T')[0]
+            const hojeDataStr = getHojeISO()
             
             if (jaConcluido) {
                 await supabase.from('treinos_concluidos').delete().eq('usuario_id', user.id).eq('treino_id', treinoId).eq('data', hojeDataStr)
@@ -242,8 +262,12 @@ export default function Dashboard() {
 
     function adicionarAgua(ml) {
         setAguaML(prev => {
-            const novo = prev + ml
-            localStorage.setItem(getHojeKey('agua'), novo)
+            const key = getHojeKey('agua')
+            const salvo = localStorage.getItem(key)
+            // Se o localStorage para hoje estiver vazio, resetamos o valor base (dia virou)
+            const valorBase = salvo !== null ? prev : 0
+            const novo = valorBase + ml
+            localStorage.setItem(key, novo)
             salvarMetricaDiaria({ agua_ml: novo })
             return novo
         })
@@ -251,8 +275,11 @@ export default function Dashboard() {
 
     function removerAgua(ml) {
         setAguaML(prev => {
-            const novo = Math.max(0, prev - ml)
-            localStorage.setItem(getHojeKey('agua'), novo)
+            const key = getHojeKey('agua')
+            const salvo = localStorage.getItem(key)
+            const valorBase = salvo !== null ? prev : 0
+            const novo = Math.max(0, valorBase - ml)
+            localStorage.setItem(key, novo)
             salvarMetricaDiaria({ agua_ml: novo })
             return novo
         })
@@ -262,7 +289,7 @@ export default function Dashboard() {
         try {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
-            const hoje = new Date().toISOString().split('T')[0]
+            const hoje = getHojeISO()
             await supabase.from('metricas_diarias').upsert({
                 usuario_id: user.id,
                 data: hoje,
