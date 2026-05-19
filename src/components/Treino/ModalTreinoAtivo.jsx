@@ -41,7 +41,8 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
             tempoRestante,
             registros,
             tempoInicio: tempoInicio?.toISOString(),
-            descansoPersonalizado
+            descansoPersonalizado,
+            exerciciosAtivos
         };
         
         if (onSessaoAtualizada) onSessaoAtualizada(sessao);
@@ -56,7 +57,7 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
         
         // Only save to DB when phase changes or registers change, not on every tick
         saveToDb();
-    }, [fase, exercicioIdx, serieIdx, registros.length]); // Intentionally omitting tempoRestante and cargaAtual
+    }, [fase, exercicioIdx, serieIdx, registros.length, exerciciosAtivos]); // Intentionally omitting tempoRestante and cargaAtual
 
     // Timer countdown persistente
     useEffect(() => {
@@ -99,12 +100,18 @@ export default function ModalTreinoAtivo({ treino, sessaoAtiva, onClose, onTrein
         setEditando(true);
     }
 
-    function salvarEdicao() {
+    async function salvarEdicao() {
         const novosExs = [...exerciciosAtivos];
         novosExs[exercicioIdx] = { ...novosExs[exercicioIdx], ...editForm };
         setExerciciosAtivos(novosExs);
         setRepsAtual(editForm.repeticoes);
         setEditando(false);
+
+        try {
+            await supabase.from("treinos").update({ exercicios: novosExs }).eq("id", treino.id);
+        } catch (e) {
+            console.error("Erro ao atualizar exercício no banco:", e);
+        }
     }
 
     function concluirSerie() {
