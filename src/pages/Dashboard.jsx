@@ -71,6 +71,7 @@ export default function Dashboard() {
         } catch { return [] }
     })
     const [treinoAtivo, setTreinoAtivo] = useState(null)
+    const [treinoSelecionadoId, setTreinoSelecionadoId] = useState("hoje")
     const [sessaoAtiva, setSessaoAtiva] = useState(null)
     const [dataDashboard, setDataDashboard] = useState(getHojeISO())
     const navigate = useNavigate()
@@ -125,6 +126,7 @@ export default function Dashboard() {
                 setPerfil(perfilRes.data)
                 if (perfilRes.data.treino_ativo) {
                     setSessaoAtiva(perfilRes.data.treino_ativo)
+                    setTreinoSelecionadoId(perfilRes.data.treino_ativo.treino_id)
                 }
             }
             if (treinoRes.data) setTreinos(treinoRes.data)
@@ -153,7 +155,14 @@ export default function Dashboard() {
     }
 
     // Dados derivados
-    const treinoHoje = treinos.filter(t => t.dia === hoje)
+    const treinosExibidos = (() => {
+        if (treinoSelecionadoId === "hoje") {
+            return treinos.filter(t => t.dia === hoje)
+        }
+        const treinoUnico = treinos.find(t => t.id === treinoSelecionadoId)
+        return treinoUnico ? [treinoUnico] : []
+    })()
+
     const refeicaoHoje = refeicoes.filter(r => r.dia === hoje)
     const totalExercicios = treinos.reduce((acc, t) => acc + (t.exercicios?.length || 0), 0)
     const totalRefeicoesSemana = refeicoes.length
@@ -653,31 +662,53 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
-                            {/* Treino do Dia */}
+                            {/* Treino Ativo */}
                             <div className="flex flex-col bg-[#161616] border border-[#222] rounded-2xl overflow-hidden">
                                 <div className="h-1 w-full bg-gradient-to-r from-[#E8881A] to-[#F09530]" />
                                 <div className="flex items-center justify-between px-5 pt-5 pb-4 gap-3">
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-3 min-w-0">
                                         <div className="w-10 h-10 bg-[#E8881A]/10 border border-[#E8881A]/20 rounded-xl flex items-center justify-center text-[#E8881A] shrink-0">
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M6 4v16M18 4v16M2 8h4M18 8h4M2 16h4M18 16h4" />
                                             </svg>
                                         </div>
-                                        <div>
+                                        <div className="min-w-0">
                                             <h2 className="text-[17px] font-semibold text-[#F0F0F0] tracking-tight leading-snug">
-                                                Treino de Hoje
+                                                Treino Ativo
                                             </h2>
                                             <p className="text-xs text-zinc-500 mt-0.5">
-                                                {treinoHoje.length} treino(s) · {hoje}
+                                                {treinosExibidos.length} treino(s){treinoSelecionadoId === "hoje" ? ` · ${hoje}` : ` · ${treinosExibidos[0]?.dia || ""}`}
                                             </p>
                                         </div>
+                                    </div>
+                                    <div className="shrink-0">
+                                        <select
+                                            id="seletor-treino-dia"
+                                            value={treinoSelecionadoId}
+                                            onChange={(e) => setTreinoSelecionadoId(e.target.value)}
+                                            className="bg-[#1A1A1A] border border-[#252525] text-zinc-300 text-[11px] sm:text-xs rounded-xl px-2.5 py-2 outline-none focus:border-[#E8881A] transition-all duration-200 cursor-pointer font-medium hover:border-zinc-600 max-w-[140px] sm:max-w-[180px]"
+                                            style={{ colorScheme: 'dark' }}
+                                        >
+                                            <option value="hoje">Hoje ({hoje})</option>
+                                            {[...treinos]
+                                                .sort((a, b) => {
+                                                    const ordem = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+                                                    return ordem.indexOf(a.dia) - ordem.indexOf(b.dia);
+                                                })
+                                                .map((t) => (
+                                                    <option key={t.id} value={t.id}>
+                                                        {t.nome} ({t.dia})
+                                                    </option>
+                                                ))
+                                            }
+                                        </select>
                                     </div>
                                 </div>
                                 <div className="h-px bg-[#1F1F1F]" />
 
-                                {treinoHoje.length > 0 ? (
+                                {treinosExibidos.length > 0 ? (
                                     <div className="flex flex-col gap-3 px-5 py-5">
-                                        {treinoHoje.map(treino => {
+                                        {treinosExibidos.map(treino => {
                                             const totalSeries = treino.exercicios.reduce((a, e) => a + Number(e.series || 0), 0)
                                             const volumeTotal = treino.exercicios.reduce((a, e) => {
                                                 return a + (Number(e.series || 0) * Number(e.repeticoes || 0) * Number(e.carga || 0))
@@ -739,8 +770,12 @@ export default function Dashboard() {
                                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M6 4v16M18 4v16M2 8h4M18 8h4M2 16h4M18 16h4" />
                                         </svg>
-                                        <span className="mt-3 text-sm">Nenhum treino para hoje</span>
-                                        <span className="text-[11px] text-zinc-700 mt-1">Dia de descanso? 💤</span>
+                                        <span className="mt-3 text-sm">
+                                            {treinoSelecionadoId === "hoje" ? "Nenhum treino para hoje" : "Treino não encontrado"}
+                                        </span>
+                                        <span className="text-[11px] text-zinc-700 mt-1">
+                                            {treinoSelecionadoId === "hoje" ? "Dia de descanso? 💤" : "Selecione outro treino acima"}
+                                        </span>
                                     </div>
                                 )}
 
@@ -970,8 +1005,12 @@ export default function Dashboard() {
                         handleTreinoConcluido(id)
                         setTreinoAtivo(null)
                         setSessaoAtiva(null)
+                        setTreinoSelecionadoId("hoje")
                     }}
-                    onSessaoAtualizada={setSessaoAtiva}
+                    onSessaoAtualizada={(sessao) => {
+                        setSessaoAtiva(sessao)
+                        if (!sessao) setTreinoSelecionadoId("hoje")
+                    }}
                 />
             )}
         </div>
